@@ -81,29 +81,42 @@ impl Automaton {
     /// >>> pma.find('abcd')
     /// [(0, 2, 0)]
     /// ```
-    fn find(&self, haystack: &str) -> PyResult<Vec<(usize, usize, usize)>> {
+    fn find(self_: PyRef<Self>, haystack: &str) -> PyResult<Vec<(usize, usize, usize)>> {
         let mut pos_map = vec![0; haystack.len() + 1];
         let mut len_in_chars = 0;
-        unsafe {
+        let match_kind = self_.match_kind;
+        let py = self_.py();
+        let pma = &self_.pma;
+        Ok(py.allow_threads(|| unsafe {
             for (i, (j, _)) in haystack.char_indices().enumerate() {
                 debug_assert!(j < pos_map.len());
                 *pos_map.get_unchecked_mut(j) = i;
                 len_in_chars = i;
             }
             *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
-        }
-        Ok(match self.match_kind {
-            MatchKind::Standard => self
-                .pma
-                .find_iter(haystack)
-                .map(|m| (pos_map[m.start()], pos_map[m.end()], m.value()))
-                .collect(),
-            MatchKind::LeftmostLongest | MatchKind::LeftmostFirst => self
-                .pma
-                .leftmost_find_iter(haystack)
-                .map(|m| (pos_map[m.start()], pos_map[m.end()], m.value()))
-                .collect(),
-        })
+            match match_kind {
+                MatchKind::Standard => pma
+                    .find_iter(haystack)
+                    .map(|m| {
+                        (
+                            *pos_map.get_unchecked(m.start()),
+                            *pos_map.get_unchecked(m.end()),
+                            m.value(),
+                        )
+                    })
+                    .collect(),
+                MatchKind::LeftmostLongest | MatchKind::LeftmostFirst => pma
+                    .leftmost_find_iter(haystack)
+                    .map(|m| {
+                        (
+                            *pos_map.get_unchecked(m.start()),
+                            *pos_map.get_unchecked(m.end()),
+                            m.value(),
+                        )
+                    })
+                    .collect(),
+            }
+        }))
     }
 
     /// Returns a list of overlapping matches in the given haystack.
@@ -125,25 +138,36 @@ impl Automaton {
     /// >>> pma.find_overlapping('abcd')
     /// [(0, 1, 2), (0, 2, 1), (1, 4, 0)]
     /// ```
-    fn find_overlapping(&self, haystack: &str) -> PyResult<Vec<(usize, usize, usize)>> {
-        if self.match_kind != MatchKind::Standard {
+    fn find_overlapping(
+        self_: PyRef<Self>,
+        haystack: &str,
+    ) -> PyResult<Vec<(usize, usize, usize)>> {
+        if self_.match_kind != MatchKind::Standard {
             return Err(PyValueError::new_err("match_kind must be STANDARD"));
         }
-        let mut pos_map = vec![0; haystack.len() + 1];
-        let mut len_in_chars = 0;
-        unsafe {
-            for (i, (j, _)) in haystack.char_indices().enumerate() {
-                debug_assert!(j < pos_map.len());
-                *pos_map.get_unchecked_mut(j) = i;
-                len_in_chars = i;
+        let py = self_.py();
+        let pma = &self_.pma;
+        Ok(py.allow_threads(|| {
+            let mut pos_map = vec![0; haystack.len() + 1];
+            let mut len_in_chars = 0;
+            unsafe {
+                for (i, (j, _)) in haystack.char_indices().enumerate() {
+                    debug_assert!(j < pos_map.len());
+                    *pos_map.get_unchecked_mut(j) = i;
+                    len_in_chars = i;
+                }
+                *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
+                pma.find_overlapping_iter(haystack)
+                    .map(|m| {
+                        (
+                            *pos_map.get_unchecked(m.start()),
+                            *pos_map.get_unchecked(m.end()),
+                            m.value(),
+                        )
+                    })
+                    .collect()
             }
-            *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
-        }
-        Ok(self
-            .pma
-            .find_overlapping_iter(haystack)
-            .map(|m| (pos_map[m.start()], pos_map[m.end()], m.value()))
-            .collect())
+        }))
     }
 
     /// Returns a list of overlapping matches without suffixes in the given haystack iterator.
@@ -171,25 +195,36 @@ impl Automaton {
     /// >>> pma.find_overlapping_no_suffix('abcd')
     /// [(0, 3, 2), (1, 4, 0)]
     /// ```
-    fn find_overlapping_no_suffix(&self, haystack: &str) -> PyResult<Vec<(usize, usize, usize)>> {
-        if self.match_kind != MatchKind::Standard {
+    fn find_overlapping_no_suffix(
+        self_: PyRef<Self>,
+        haystack: &str,
+    ) -> PyResult<Vec<(usize, usize, usize)>> {
+        if self_.match_kind != MatchKind::Standard {
             return Err(PyValueError::new_err("match_kind must be STANDARD"));
         }
-        let mut pos_map = vec![0; haystack.len() + 1];
-        let mut len_in_chars = 0;
-        unsafe {
-            for (i, (j, _)) in haystack.char_indices().enumerate() {
-                debug_assert!(j < pos_map.len());
-                *pos_map.get_unchecked_mut(j) = i;
-                len_in_chars = i;
+        let py = self_.py();
+        let pma = &self_.pma;
+        Ok(py.allow_threads(|| {
+            let mut pos_map = vec![0; haystack.len() + 1];
+            let mut len_in_chars = 0;
+            unsafe {
+                for (i, (j, _)) in haystack.char_indices().enumerate() {
+                    debug_assert!(j < pos_map.len());
+                    *pos_map.get_unchecked_mut(j) = i;
+                    len_in_chars = i;
+                }
+                *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
+                pma.find_overlapping_no_suffix_iter(haystack)
+                    .map(|m| {
+                        (
+                            *pos_map.get_unchecked(m.start()),
+                            *pos_map.get_unchecked(m.end()),
+                            m.value(),
+                        )
+                    })
+                    .collect()
             }
-            *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
-        }
-        Ok(self
-            .pma
-            .find_overlapping_no_suffix_iter(haystack)
-            .map(|m| (pos_map[m.start()], pos_map[m.end()], m.value()))
-            .collect())
+        }))
     }
 }
 
