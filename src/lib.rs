@@ -82,16 +82,26 @@ impl Automaton {
     /// [(0, 2, 0)]
     /// ```
     fn find(&self, haystack: &str) -> PyResult<Vec<(usize, usize, usize)>> {
+        let mut pos_map = vec![0; haystack.len() + 1];
+        let mut len_in_chars = 0;
+        unsafe {
+            for (i, (j, _)) in haystack.char_indices().enumerate() {
+                debug_assert!(j < pos_map.len());
+                *pos_map.get_unchecked_mut(j) = i;
+                len_in_chars = i;
+            }
+            *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
+        }
         Ok(match self.match_kind {
             MatchKind::Standard => self
                 .pma
                 .find_iter(haystack)
-                .map(|m| (m.start(), m.end(), m.value()))
+                .map(|m| (pos_map[m.start()], pos_map[m.end()], m.value()))
                 .collect(),
             MatchKind::LeftmostLongest | MatchKind::LeftmostFirst => self
                 .pma
                 .leftmost_find_iter(haystack)
-                .map(|m| (m.start(), m.end(), m.value()))
+                .map(|m| (pos_map[m.start()], pos_map[m.end()], m.value()))
                 .collect(),
         })
     }
@@ -119,10 +129,20 @@ impl Automaton {
         if self.match_kind != MatchKind::Standard {
             return Err(PyValueError::new_err("match_kind must be STANDARD"));
         }
+        let mut pos_map = vec![0; haystack.len() + 1];
+        let mut len_in_chars = 0;
+        unsafe {
+            for (i, (j, _)) in haystack.char_indices().enumerate() {
+                debug_assert!(j < pos_map.len());
+                *pos_map.get_unchecked_mut(j) = i;
+                len_in_chars = i;
+            }
+            *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
+        }
         Ok(self
             .pma
             .find_overlapping_iter(haystack)
-            .map(|m| (m.start(), m.end(), m.value()))
+            .map(|m| (pos_map[m.start()], pos_map[m.end()], m.value()))
             .collect())
     }
 
@@ -155,10 +175,20 @@ impl Automaton {
         if self.match_kind != MatchKind::Standard {
             return Err(PyValueError::new_err("match_kind must be STANDARD"));
         }
+        let mut pos_map = vec![0; haystack.len() + 1];
+        let mut len_in_chars = 0;
+        unsafe {
+            for (i, (j, _)) in haystack.char_indices().enumerate() {
+                debug_assert!(j < pos_map.len());
+                *pos_map.get_unchecked_mut(j) = i;
+                len_in_chars = i;
+            }
+            *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
+        }
         Ok(self
             .pma
             .find_overlapping_no_suffix_iter(haystack)
-            .map(|m| (m.start(), m.end(), m.value()))
+            .map(|m| (pos_map[m.start()], pos_map[m.end()], m.value()))
             .collect())
     }
 }
