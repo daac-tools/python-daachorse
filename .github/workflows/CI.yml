@@ -13,7 +13,7 @@ jobs:
       with:
         manylinux: auto
         command: build
-        args: --release -o dist
+        args: --release --no-sdist -o dist
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
