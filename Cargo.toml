@@ -2,11 +2,15 @@
 name = "python-daachorse"
 version = "0.1.0"
 edition = "2021"
+authors = [
+    "Koichi Akabe <vbkaisetsu@gmail.com>",
+]
+license = "MIT OR Apache-2.0"
 
 [lib]
 name = "daachorse"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.16.3", features = ["extension-module"] }
-daachorse = { git = "http:://github.com/daac-tools/daachorse" }
+pyo3 = { version = "0.16.3", features = ["extension-module"] } # MIT or Apache-2.0
+daachorse = "0.4" # MIT or Apache-2.0
