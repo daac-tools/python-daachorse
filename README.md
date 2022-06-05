@@ -89,3 +89,5 @@ Licensed under either of
    ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 
 at your option.
+
+For softwares under `tests/data`, follow the license terms of each software.
