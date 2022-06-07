@@ -1,4 +1,4 @@
-use pyo3::{exceptions::PyValueError, prelude::*};
+use pyo3::{exceptions::PyValueError, prelude::*, types::PyUnicode};
 
 use daachorse::{
     charwise::{CharwiseDoubleArrayAhoCorasick, CharwiseDoubleArrayAhoCorasickBuilder},
@@ -26,23 +26,30 @@ use daachorse::{
 struct Automaton {
     pma: CharwiseDoubleArrayAhoCorasick,
     match_kind: MatchKind,
+    patterns: Vec<Py<PyUnicode>>,
 }
 
 #[pymethods]
 impl Automaton {
     #[new]
     #[args(match_kind = "0")]
-    fn new(py: Python, patterns: Vec<String>, match_kind: u8) -> PyResult<Self> {
+    fn new(py: Python, patterns: Vec<Py<PyUnicode>>, match_kind: u8) -> PyResult<Self> {
+        let raw_patterns: PyResult<Vec<String>> = patterns
+            .iter()
+            .map(|pat| pat.as_ref(py).extract())
+            .collect();
+        let raw_patterns = raw_patterns?;
         let match_kind = MatchKind::from(match_kind);
         Ok(Self {
             pma: py
                 .allow_threads(|| {
                     CharwiseDoubleArrayAhoCorasickBuilder::new()
                         .match_kind(match_kind)
-                        .build(patterns)
+                        .build(raw_patterns)
                 })
                 .map_err(|e| PyValueError::new_err(e.to_string()))?,
             match_kind,
+            patterns,
         })
     }
 
@@ -119,6 +126,58 @@ impl Automaton {
         }))
     }
 
+    /// Returns a list of non-overlapping match strings in the given haystack.
+    ///
+    /// # Arguments
+    ///
+    /// * `haystack` - String to search for.
+    ///
+    /// # Example 1: Standard semantics
+    ///
+    /// ```python
+    /// >>> import daachorse
+    /// >>> patterns = ['bcd', 'ab', 'a']
+    /// >>> pma = daachorse.Automaton(patterns)
+    /// >>> pma.find_as_strings('abcd')
+    /// ['a', 'bcd']
+    /// ```
+    ///
+    /// # Example 2: Leftmost longest semantics
+    ///
+    /// ```python
+    /// >>> import daachorse
+    /// >>> patterns = ['ab', 'a', 'abcd']
+    /// >>> pma = daachorse.Automaton(patterns, daachorse.MATCH_KIND_LEFTMOST_LONGEST)
+    /// >>> pma.find_as_strings('abcd')
+    /// ['abcd']
+    /// ```
+    ///
+    /// # Example 3: Leftmost first semantics
+    ///
+    /// ```python
+    /// >>> import daachorse
+    /// >>> patterns = ['ab', 'a', 'abcd']
+    /// >>> pma = daachorse.Automaton(patterns, daachorse.MATCH_KIND_LEFTMOST_FIRST)
+    /// >>> pma.find_as_strings('abcd')
+    /// ['ab']
+    /// ```
+    fn find_as_strings(self_: PyRef<Self>, haystack: &str) -> PyResult<Vec<Py<PyUnicode>>> {
+        let match_kind = self_.match_kind;
+        let py = self_.py();
+        let pma = &self_.pma;
+        let pattern_ids: Vec<_> = py.allow_threads(|| match match_kind {
+            MatchKind::Standard => pma.find_iter(haystack).map(|m| m.value()).collect(),
+            MatchKind::LeftmostLongest | MatchKind::LeftmostFirst => pma
+                .leftmost_find_iter(haystack)
+                .map(|m| m.value())
+                .collect(),
+        });
+        Ok(pattern_ids
+            .into_iter()
+            .map(|i| unsafe { self_.patterns.get_unchecked(i).clone_ref(py) })
+            .collect())
+    }
+
     /// Returns a list of overlapping matches in the given haystack.
     ///
     /// # Arguments
@@ -127,7 +186,7 @@ impl Automaton {
     ///
     /// # Errors
     ///
-    /// When you specify a LEFTMOST option, this function raises an error.
+    /// If you specify a LEFTMOST option, this function raises an error.
     ///
     /// # Examples
     ///
@@ -170,6 +229,45 @@ impl Automaton {
         }))
     }
 
+    /// Returns a list of overlapping match strings in the given haystack.
+    ///
+    /// # Arguments
+    ///
+    /// * `haystack` - String to search for.
+    ///
+    /// # Errors
+    ///
+    /// If you specify a LEFTMOST option, this function raises an error.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// >>> import daachorse
+    /// >>> patterns = ['bcd', 'ab', 'a']
+    /// >>> pma = daachorse.Automaton(patterns)
+    /// >>> pma.find_overlapping_as_strings('abcd')
+    /// ['a', 'ab', 'bcd']
+    /// ```
+    fn find_overlapping_as_strings(
+        self_: PyRef<Self>,
+        haystack: &str,
+    ) -> PyResult<Vec<Py<PyUnicode>>> {
+        if self_.match_kind != MatchKind::Standard {
+            return Err(PyValueError::new_err("match_kind must be STANDARD"));
+        }
+        let py = self_.py();
+        let pma = &self_.pma;
+        let pattern_ids: Vec<_> = py.allow_threads(|| {
+            pma.find_overlapping_iter(haystack)
+                .map(|m| m.value())
+                .collect()
+        });
+        Ok(pattern_ids
+            .into_iter()
+            .map(|i| unsafe { self_.patterns.get_unchecked(i).clone_ref(py) })
+            .collect())
+    }
+
     /// Returns a list of overlapping matches without suffixes in the given haystack iterator.
     ///
     /// The Aho-Corasick algorithm reads through the haystack from left to right and reports
@@ -184,7 +282,7 @@ impl Automaton {
     ///
     /// # Errors
     ///
-    /// When you specify a LEFTMOST option, this function raises an error.
+    /// If you specify a LEFTMOST option, this function raises an error.
     ///
     /// # Examples
     ///
@@ -225,6 +323,51 @@ impl Automaton {
                     .collect()
             }
         }))
+    }
+
+    /// Returns a list of overlapping match strings without suffixes in the given haystack iterator.
+    ///
+    /// The Aho-Corasick algorithm reads through the haystack from left to right and reports
+    /// matches when it reaches the end of each pattern. In the overlapping match, more than one
+    /// pattern can be returned per report.
+    ///
+    /// This iterator returns the first match on each report.
+    ///
+    /// # Arguments
+    ///
+    /// * `haystack` - String to search for.
+    ///
+    /// # Errors
+    ///
+    /// If you specify a LEFTMOST option, this function raises an error.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// >>> import daachorse
+    /// >>> patterns = ['bcd', 'cd', 'abc']
+    /// >>> pma = daachorse.Automaton(patterns)
+    /// >>> pma.find_overlapping_no_suffix_as_strings('abcd')
+    /// ['abc', 'bcd']
+    /// ```
+    fn find_overlapping_no_suffix_as_strings(
+        self_: PyRef<Self>,
+        haystack: &str,
+    ) -> PyResult<Vec<Py<PyUnicode>>> {
+        if self_.match_kind != MatchKind::Standard {
+            return Err(PyValueError::new_err("match_kind must be STANDARD"));
+        }
+        let py = self_.py();
+        let pma = &self_.pma;
+        let pattern_ids: Vec<_> = py.allow_threads(|| {
+            pma.find_overlapping_no_suffix_iter(haystack)
+                .map(|m| m.value())
+                .collect()
+        });
+        Ok(pattern_ids
+            .into_iter()
+            .map(|i| unsafe { self_.patterns.get_unchecked(i).clone_ref(py) })
+            .collect())
     }
 }
 
