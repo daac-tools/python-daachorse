@@ -1,8 +1,7 @@
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyUnicode};
 
-use daachorse::{
-    charwise::{CharwiseDoubleArrayAhoCorasick, CharwiseDoubleArrayAhoCorasickBuilder},
-    MatchKind,
+use ::daachorse::{
+    CharwiseDoubleArrayAhoCorasick, CharwiseDoubleArrayAhoCorasickBuilder, MatchKind,
 };
 
 /// An Aho-Corasick automaton using the compact double-array data structure.
@@ -24,7 +23,7 @@ use daachorse::{
 /// ```
 #[pyclass]
 struct Automaton {
-    pma: CharwiseDoubleArrayAhoCorasick,
+    pma: CharwiseDoubleArrayAhoCorasick<usize>,
     match_kind: MatchKind,
     patterns: Vec<Py<PyUnicode>>,
 }
