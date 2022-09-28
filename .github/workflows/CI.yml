@@ -18,7 +18,7 @@ jobs:
       with:
         maturin-version: latest
         command: build
-        args: --release
+        args: --release -o dist
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -38,7 +38,7 @@ jobs:
       with:
         maturin-version: latest
         command: build
-        args: --release
+        args: --release -o dist
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -58,7 +58,7 @@ jobs:
       with:
         maturin-version: latest
         command: build
-        args: --release --universal2
+        args: --release -o dist --universal2
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
