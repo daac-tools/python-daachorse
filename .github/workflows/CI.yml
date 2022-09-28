@@ -9,11 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
     - uses: messense/maturin-action@v1
       with:
-        manylinux: auto
+        maturin-version: latest
         command: build
-        args: --release --no-sdist -o dist
+        args: --release
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -24,10 +29,16 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
     - uses: messense/maturin-action@v1
       with:
+        maturin-version: latest
         command: build
-        args: --release --no-sdist -o dist
+        args: --release
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -38,10 +49,16 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
     - uses: messense/maturin-action@v1
       with:
+        maturin-version: latest
         command: build
-        args: --release --no-sdist -o dist --universal2
+        args: --release --universal2
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
