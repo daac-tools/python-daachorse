@@ -3,12 +3,23 @@
 [daachorse](https://github.com/daac-tools/daachorse) is a fast implementation of the Aho-Corasick algorithm using the compact double-array data structure.
 This is a Python wrapper.
 
+[![PyPI](https://img.shields.io/pypi/v/daachorse)](https://pypi.org/project/daachorse/)
+[![Build Status](https://github.com/vbkaisetsu/python-daachorse/actions/workflows/CI.yml/badge.svg)](https://github.com/vbkaisetsu/python-daachorse/actions)
+
 ## Installation
 
 To use daachorse, run the following command:
 
 ```
 $ pip install daachorse
+```
+
+You can also build a package as follows:
+
+```
+$ python3 -m pip install maturin  # installs maturin
+$ python3 -m maturin build --release -o dist  # whl file is placed in dist
+$ python3 -m pip install dist/*.whl  # installs daachorse
 ```
 
 ## Example usage
