@@ -5,52 +5,8 @@ on:
   pull_request:
 
 jobs:
-  build:
-    name: build on ${{ matrix.platform || matrix.os }} (${{ matrix.target }} - ${{ matrix.manylinux || 'auto' }})
-    if: "success() && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')"
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu, macos, windows]
-        target: [x86_64, aarch64]
-        manylinux: [auto]
-        include:
-          - os: ubuntu
-            platform: linux
-          - os: windows
-            interpreter: 3.7 3.8 3.9 3.10
-          - os: windows
-            target: i686
-            python-architecture: x86
-            interpreter: 3.7 3.8 3.9 3.10
-          - os: macos
-            target: aarch64
-            interpreter: 3.7 3.8 3.9 3.10
-          - os: ubuntu
-            platform: linux
-            target: i686
-          - os: ubuntu
-            platform: linux
-            target: aarch64
-            container: messense/manylinux_2_24-cross:aarch64
-          - os: ubuntu
-            platform: linux
-            target: armv7
-            container: messense/manylinux_2_24-cross:armv7
-            interpreter: 3.7 3.8 3.9 3.10
-          - os: ubuntu
-            platform: linux
-            target: x86_64
-            manylinux: musllinux_1_1
-          - os: ubuntu
-            platform: linux
-            target: aarch64
-            manylinux: musllinux_1_1
-        exclude:
-          - os: windows
-            target: aarch64
-
-    runs-on: ${{ matrix.os }}-latest
+  linux:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - uses: actions-rs/toolchain@v1
@@ -69,11 +25,51 @@ jobs:
         name: wheels
         path: dist
 
+  windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+    - uses: messense/maturin-action@v1
+      with:
+        maturin-version: latest
+        command: build
+        args: --release -o dist
+    - name: Upload wheels
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels
+        path: dist
+
+  macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+    - uses: messense/maturin-action@v1
+      with:
+        maturin-version: latest
+        command: build
+        args: --release -o dist --universal2
+    - name: Upload wheels
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels
+        path: dist
+
   release:
     name: Release
     runs-on: ubuntu-latest
     if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [ build ]
+    needs: [ macos, windows, linux ]
     steps:
       - uses: actions/download-artifact@v2
         with:
