@@ -13,16 +13,20 @@ jobs:
         target: [x86_64, i686]
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: ${{ matrix.target }}
     - uses: actions-rs/toolchain@v1
       with:
         profile: minimal
         toolchain: stable
-        override: true
+        default: true
     - uses: messense/maturin-action@v1
       with:
-        maturin-version: latest
-        command: build
-        args: --release -o dist
+        target: ${{ matrix.target }}
+        manylinux: auto
+        args: -i ${{ matrix.python-version }} --release -o dist
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -37,16 +41,20 @@ jobs:
         target: [x64, x86]
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: ${{ matrix.target }}
     - uses: actions-rs/toolchain@v1
       with:
         profile: minimal
         toolchain: stable
-        override: true
+        default: true
     - uses: messense/maturin-action@v1
       with:
-        maturin-version: latest
-        command: build
-        args: --release -o dist
+        target: ${{ matrix.target }}
+        manylinux: auto
+        args: -i ${{ matrix.python-version }} --release -o dist
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -60,16 +68,19 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10']
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
     - uses: actions-rs/toolchain@v1
       with:
         profile: minimal
         toolchain: stable
-        override: true
+        default: true
     - uses: messense/maturin-action@v1
       with:
-        maturin-version: latest
-        command: build
-        args: --release -o dist --universal2
+        target: ${{ matrix.target }}
+        manylinux: auto
+        args: -i ${{ matrix.python-version }} --release -o dist --universal2
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
