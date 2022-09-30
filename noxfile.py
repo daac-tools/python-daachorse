@@ -9,10 +9,3 @@ def test(session):
     session.install("maturin")
     session.run_always("maturin", "develop", "-r")
     session.run("pytest")
-
-
-@nox.session
-def bench(session):
-    session.install("-rrequirements-dev.txt")
-    session.install(".")
-    session.run("pytest", "--benchmark-enable")
