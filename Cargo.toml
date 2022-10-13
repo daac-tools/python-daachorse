@@ -8,6 +8,8 @@ authors = [
 description = "A fast implementation of the Aho-Corasick algorithm using the compact double-array data structure"
 readme = "README.md"
 license = "MIT OR Apache-2.0"
+homepage = "https://github.com/daac-tools/python-daachorse"
+repository = "https://github.com/daac-tools/python-daachorse"
 
 [lib]
 name = "daachorse"
