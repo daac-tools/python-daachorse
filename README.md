@@ -8,18 +8,27 @@ This is a Python wrapper.
 
 ## Installation
 
-To use daachorse, run the following command:
+### Install pre-built package from PyPI
+
+Run the following command:
 
 ```
 $ pip install daachorse
 ```
 
-You can also build a package as follows:
+### Build from source
+
+You need to install the Rust compiler following [the documentation](https://www.rust-lang.org/tools/install) beforehand.
+daachorse uses `pyproject.toml`, so you also need to upgrade pip to version 19 or later.
 
 ```
-$ python3 -m pip install maturin  # installs maturin
-$ python3 -m maturin build --release -o dist  # whl file is placed in dist
-$ python3 -m pip install dist/*.whl  # installs daachorse
+$ pip install --upgrade pip
+```
+
+After setting up the environment, you can install daachorse as follows:
+
+```
+$ pip install git+https://github.com/daac-tools/python-daachorse
 ```
 
 ## Example usage
