@@ -20,8 +20,8 @@ jobs:
     - name: Build package
       uses: PyO3/maturin-action@v1
       with:
-        command: develop
-        args: -r
+        manylinux: auto
+        args: -i ${{ matrix.python-version }} --release
     - name: Test package
       run: |
         python -m pip install --upgrade pip
