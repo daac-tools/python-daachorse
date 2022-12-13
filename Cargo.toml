@@ -17,7 +17,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 daachorse = "1.0.0" # MIT or Apache-2.0
-pyo3 = { version = "0.17.3", features = ["extension-module"] } # MIT or Apache-2.0
+pyo3 = { version = "0.17.3", features = ["extension-module"] } # Apache-2.0
 
 [profile.release]
 lto = true
