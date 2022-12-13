@@ -30,6 +30,7 @@ jobs:
         pytest
 
   pack-sdist:
+    if: "startsWith(github.ref, 'refs/tags/')"
     needs: [ test ]
     runs-on: ubuntu-latest
     steps:
@@ -49,6 +50,7 @@ jobs:
         path: target/wheels
 
   pack-linux:
+    if: "startsWith(github.ref, 'refs/tags/')"
     needs: [ test ]
     runs-on: ubuntu-latest
     strategy:
@@ -74,6 +76,7 @@ jobs:
         path: target/wheels
 
   pack-windows:
+    if: "startsWith(github.ref, 'refs/tags/')"
     needs: [ test ]
     runs-on: windows-latest
     strategy:
@@ -100,6 +103,7 @@ jobs:
         path: target/wheels
 
   pack-macos:
+    if: "startsWith(github.ref, 'refs/tags/')"
     needs: [ test ]
     runs-on: macos-latest
     strategy:
