@@ -19,7 +19,7 @@ use ::daachorse::{
 /// :type match_kind: int
 /// :rtype: daachorse.Automaton
 #[pyclass]
-#[pyo3(text_signature = "($self, patterns, /, match_kind = daachorse.MATCH_KIND_STANDARD)")]
+#[pyo3(text_signature = "(patterns, /, match_kind = daachorse.MATCH_KIND_STANDARD)")]
 struct Automaton {
     pma: CharwiseDoubleArrayAhoCorasick<usize>,
     match_kind: MatchKind,
