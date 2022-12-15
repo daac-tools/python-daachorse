@@ -5,6 +5,7 @@ This is a Python wrapper.
 
 [![PyPI](https://img.shields.io/pypi/v/daachorse)](https://pypi.org/project/daachorse/)
 [![Build Status](https://github.com/vbkaisetsu/python-daachorse/actions/workflows/CI.yml/badge.svg)](https://github.com/vbkaisetsu/python-daachorse/actions)
+[![Documentation Status](https://readthedocs.org/projects/python-daachorse/badge/?version=latest)](https://python-daachorse.readthedocs.io/en/latest/?badge=latest)
 
 ## Installation
 
