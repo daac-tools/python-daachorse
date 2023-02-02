@@ -3,7 +3,7 @@ import pytest
 import daachorse
 
 
-def test_default_find():
+def test_default_find() -> None:
     haystack = 'this is a テスト'
     patterns = ['t', 'hi', 'h', 'this', 'テス']
     pma = daachorse.Automaton(patterns)
@@ -15,7 +15,7 @@ def test_default_find():
     ] == pma.find(haystack)
 
 
-def test_standard_find():
+def test_standard_find() -> None:
     haystack = 'this is a テスト'
     patterns = ['t', 'hi', 'h', 'this', 'テス']
     pma = daachorse.Automaton(patterns, daachorse.MATCH_KIND_STANDARD)
@@ -27,7 +27,7 @@ def test_standard_find():
     ] == pma.find(haystack)
 
 
-def test_leftmost_longest_find():
+def test_leftmost_longest_find() -> None:
     haystack = 'this is a テスト'
     patterns = ['t', 'hi', 'h', 'this', 'テス']
     pma = daachorse.Automaton(patterns, daachorse.MATCH_KIND_LEFTMOST_LONGEST)
@@ -38,7 +38,7 @@ def test_leftmost_longest_find():
     ] == pma.find(haystack)
 
 
-def test_leftmost_first_find():
+def test_leftmost_first_find() -> None:
     haystack = 'this is a テスト'
     patterns = ['t', 'hi', 'h', 'this', 'テス']
     pma = daachorse.Automaton(patterns, daachorse.MATCH_KIND_LEFTMOST_FIRST)
@@ -50,7 +50,7 @@ def test_leftmost_first_find():
     ] == pma.find(haystack)
 
 
-def test_find_overlapping():
+def test_find_overlapping() -> None:
     haystack = 'this is a テスト'
     patterns = ['t', 'hi', 'h', 'this', 'テス']
     pma = daachorse.Automaton(patterns)
@@ -64,7 +64,7 @@ def test_find_overlapping():
     ] == pma.find_overlapping(haystack)
 
 
-def test_find_overlapping_invalid_option():
+def test_find_overlapping_invalid_option() -> None:
     haystack = 'this is a テスト'
     patterns = ['t', 'hi', 'h', 'this', 'テス']
 
