@@ -1,4 +1,4 @@
-use pyo3::{exceptions::PyValueError, prelude::*, types::PyUnicode};
+use pyo3::{exceptions::PyValueError, prelude::*, types::PyString};
 
 use ::daachorse::{
     CharwiseDoubleArrayAhoCorasick, CharwiseDoubleArrayAhoCorasickBuilder, MatchKind,
@@ -19,22 +19,19 @@ use ::daachorse::{
 /// :type match_kind: int
 /// :rtype: daachorse.Automaton
 #[pyclass]
-#[pyo3(text_signature = "(patterns, /, match_kind = daachorse.MATCH_KIND_STANDARD)")]
 struct Automaton {
     pma: CharwiseDoubleArrayAhoCorasick<usize>,
     match_kind: MatchKind,
-    patterns: Vec<Py<PyUnicode>>,
+    patterns: Vec<Py<PyString>>,
 }
 
 #[pymethods]
 impl Automaton {
     #[new]
-    #[args(match_kind = "0")]
-    fn new(py: Python, patterns: Vec<Py<PyUnicode>>, match_kind: u8) -> PyResult<Self> {
-        let raw_patterns: PyResult<Vec<String>> = patterns
-            .iter()
-            .map(|pat| pat.as_ref(py).extract())
-            .collect();
+    #[pyo3(signature = (patterns, /, match_kind = 0))]
+    fn new(py: Python, patterns: Vec<Py<PyString>>, match_kind: u8) -> PyResult<Self> {
+        let raw_patterns: PyResult<Vec<String>> =
+            patterns.iter().map(|pat| pat.extract(py)).collect();
         let raw_patterns = raw_patterns?;
         let match_kind = MatchKind::from(match_kind);
         Ok(Self {
@@ -142,7 +139,7 @@ impl Automaton {
     /// :type haystack: str
     /// :rtype: list[str]
     #[pyo3(text_signature = "($self, haystack, /)")]
-    fn find_as_strings(self_: PyRef<Self>, haystack: &str) -> PyResult<Vec<Py<PyUnicode>>> {
+    fn find_as_strings(self_: PyRef<Self>, haystack: &str) -> PyResult<Vec<Py<PyString>>> {
         let match_kind = self_.match_kind;
         let py = self_.py();
         let pma = &self_.pma;
@@ -222,7 +219,7 @@ impl Automaton {
     fn find_overlapping_as_strings(
         self_: PyRef<Self>,
         haystack: &str,
-    ) -> PyResult<Vec<Py<PyUnicode>>> {
+    ) -> PyResult<Vec<Py<PyString>>> {
         if self_.match_kind != MatchKind::Standard {
             return Err(PyValueError::new_err("match_kind must be STANDARD"));
         }
@@ -314,7 +311,7 @@ impl Automaton {
     fn find_overlapping_no_suffix_as_strings(
         self_: PyRef<Self>,
         haystack: &str,
-    ) -> PyResult<Vec<Py<PyUnicode>>> {
+    ) -> PyResult<Vec<Py<PyString>>> {
         if self_.match_kind != MatchKind::Standard {
             return Err(PyValueError::new_err("match_kind must be STANDARD"));
         }
@@ -333,7 +330,7 @@ impl Automaton {
 }
 
 #[pymodule]
-fn daachorse(_py: Python, m: &PyModule) -> PyResult<()> {
+fn daachorse(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Automaton>()?;
     m.add("MATCH_KIND_STANDARD", MatchKind::Standard as u8)?;
     m.add(
