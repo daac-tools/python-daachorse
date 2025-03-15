@@ -53,7 +53,7 @@ jobs:
     - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
-        name: wheels-${{ matrix.runs-on }}
+        name: wheels-sdist
         path: target/wheels
 
   pack-linux:
@@ -79,7 +79,7 @@ jobs:
     - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
-        name: wheels-${{ matrix.runs-on }}
+        name: wheels-linux-${{ matrix.python-version }}-${{ matrix.target }}
         path: target/wheels
 
   pack-windows:
@@ -106,7 +106,7 @@ jobs:
     - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
-        name: wheels-${{ matrix.runs-on }}
+        name: wheels-windows-${{ matrix.python-version }}-${{ matrix.target }}
         path: target/wheels
 
   pack-macos:
@@ -131,7 +131,7 @@ jobs:
     - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
-        name: wheels-${{ matrix.runs-on }}
+        name: wheels-macos-${{ matrix.python-version }}
         path: target/wheels
 
   release:
