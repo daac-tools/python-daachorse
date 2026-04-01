@@ -168,7 +168,7 @@ impl Automaton {
     /// :param haystack: String to search for.
     /// :type haystack: str
     /// :rtype: list[tuple[int, int, int]]
-    /// :raises ValueError: if the automaton is built with a LESTMOST option.
+    /// :raises ValueError: if the automaton is built with a LEFTMOST option.
     #[pyo3(text_signature = "($self, haystack, /)")]
     fn find_overlapping(
         self_: PyRef<Self>,
@@ -214,7 +214,7 @@ impl Automaton {
     /// :param haystack: String to search for.
     /// :type haystack: str
     /// :rtype: list[str]
-    /// :raises ValueError: if the automaton is built with a LESTMOST option.
+    /// :raises ValueError: if the automaton is built with a LEFTMOST option.
     #[pyo3(text_signature = "($self, haystack, /)")]
     fn find_overlapping_as_strings(
         self_: PyRef<Self>,
@@ -254,7 +254,7 @@ impl Automaton {
     /// :param haystack: String to search for.
     /// :type haystack: str
     /// :rtype: list[tuple[int, int, int]]
-    /// :raises ValueError: if the automaton is built with a LESTMOST option.
+    /// :raises ValueError: if the automaton is built with a LEFTMOST option.
     #[pyo3(text_signature = "($self, haystack, /)")]
     fn find_overlapping_no_suffix(
         self_: PyRef<Self>,
@@ -306,7 +306,7 @@ impl Automaton {
     /// :param haystack: String to search for.
     /// :type haystack: str
     /// :rtype: list[str]
-    /// :raises ValueError: if the automaton is built with a LESTMOST option.
+    /// :raises ValueError: if the automaton is built with a LEFTMOST option.
     #[pyo3(text_signature = "($self, haystack, /)")]
     fn find_overlapping_no_suffix_as_strings(
         self_: PyRef<Self>,
