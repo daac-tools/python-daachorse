@@ -1,4 +1,5 @@
 import pytest
+import pickle
 
 import daachorse
 
@@ -6,7 +7,7 @@ import daachorse
 def test_default_find() -> None:
     haystack = 'this is a テスト'
     patterns = ['t', 'hi', 'h', 'this', 'テス']
-    pma = daachorse.Automaton(patterns)
+    pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns)
 
     assert [
         (0, 1, 0),
@@ -18,7 +19,7 @@ def test_default_find() -> None:
 def test_standard_find() -> None:
     haystack = 'this is a テスト'
     patterns = ['t', 'hi', 'h', 'this', 'テス']
-    pma = daachorse.Automaton(patterns, daachorse.MATCH_KIND_STANDARD)
+    pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns, daachorse.MATCH_KIND_STANDARD)
 
     assert [
         (0, 1, 0),
@@ -30,7 +31,7 @@ def test_standard_find() -> None:
 def test_leftmost_longest_find() -> None:
     haystack = 'this is a テスト'
     patterns = ['t', 'hi', 'h', 'this', 'テス']
-    pma = daachorse.Automaton(patterns, daachorse.MATCH_KIND_LEFTMOST_LONGEST)
+    pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns, daachorse.MATCH_KIND_LEFTMOST_LONGEST)
 
     assert [
         (0, 4, 3),
@@ -41,7 +42,7 @@ def test_leftmost_longest_find() -> None:
 def test_leftmost_first_find() -> None:
     haystack = 'this is a テスト'
     patterns = ['t', 'hi', 'h', 'this', 'テス']
-    pma = daachorse.Automaton(patterns, daachorse.MATCH_KIND_LEFTMOST_FIRST)
+    pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns, daachorse.MATCH_KIND_LEFTMOST_FIRST)
 
     assert [
         (0, 1, 0),
@@ -53,7 +54,7 @@ def test_leftmost_first_find() -> None:
 def test_find_overlapping() -> None:
     haystack = 'this is a テスト'
     patterns = ['t', 'hi', 'h', 'this', 'テス']
-    pma = daachorse.Automaton(patterns)
+    pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns)
 
     assert [
         (0, 1, 0),
@@ -68,10 +69,41 @@ def test_find_overlapping_invalid_option() -> None:
     haystack = 'this is a テスト'
     patterns = ['t', 'hi', 'h', 'this', 'テス']
 
-    pma = daachorse.Automaton(patterns, daachorse.MATCH_KIND_LEFTMOST_LONGEST)
+    pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns, daachorse.MATCH_KIND_LEFTMOST_LONGEST)
     with pytest.raises(ValueError):
         pma.find_overlapping(haystack)
 
-    pma = daachorse.Automaton(patterns, daachorse.MATCH_KIND_LEFTMOST_FIRST)
+    pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns, daachorse.MATCH_KIND_LEFTMOST_FIRST)
     with pytest.raises(ValueError):
         pma.find_overlapping(haystack)
+
+
+def test_serialization() -> None:
+    haystack = 'this is a テスト'
+    patterns = ['t', 'hi', 'h', 'this', 'テス']
+    pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns)
+    serialized = pma.serialize()
+    pma = daachorse.CharwiseDoubleArrayAhoCorasick.deserialize(serialized)
+
+    assert [
+        (0, 1, 0),
+        (1, 2, 2),
+        (1, 3, 1),
+        (0, 4, 3),
+        (10, 12, 4),
+    ] == pma.find_overlapping(haystack)
+
+
+def test_pickle() -> None:
+    haystack = 'this is a テスト'
+    patterns = ['t', 'hi', 'h', 'this', 'テス']
+    pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns)
+    pma = pickle.loads(pickle.dumps(pma))
+
+    assert [
+        (0, 1, 0),
+        (1, 2, 2),
+        (1, 3, 1),
+        (0, 4, 3),
+        (10, 12, 4),
+    ] == pma.find_overlapping(haystack)
