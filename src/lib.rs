@@ -68,6 +68,8 @@ impl DoubleArrayAhoCorasick {
     ///
     /// :param haystack: Bytes to search for.
     /// :type haystack: bytes
+    /// :return: A list of matches. Each match is a tuple consisting of the start position, end
+    ///          position, and pattern ID.
     /// :rtype: list[tuple[int, int, int]]
     #[pyo3(text_signature = "($self, haystack, /)")]
     fn find(self_: PyRef<Self>, haystack: &[u8]) -> PyResult<Vec<(usize, usize, u32)>> {
@@ -97,6 +99,8 @@ impl DoubleArrayAhoCorasick {
     ///
     /// :param haystack: Bytes to search for.
     /// :type haystack: bytes
+    /// :return: A list of matches. Each match is a tuple consisting of the start position, end
+    ///          position, and pattern ID.
     /// :rtype: list[tuple[int, int, int]]
     /// :raises ValueError: if the automaton is built with a LEFTMOST option.
     #[pyo3(text_signature = "($self, haystack, /)")]
@@ -130,6 +134,8 @@ impl DoubleArrayAhoCorasick {
     ///
     /// :param haystack: Bytes to search for.
     /// :type haystack: bytes
+    /// :return: A list of matches. Each match is a tuple consisting of the start position, end
+    ///          position, and pattern ID.
     /// :rtype: list[tuple[int, int, int]]
     /// :raises ValueError: if the automaton is built with a LEFTMOST option.
     #[pyo3(text_signature = "($self, haystack, /)")]
@@ -248,6 +254,8 @@ impl CharwiseDoubleArrayAhoCorasick {
     ///
     /// :param haystack: String to search for.
     /// :type haystack: str
+    /// :return: A list of matches. Each match is a tuple consisting of the start position, end
+    ///          position, and pattern ID.
     /// :rtype: list[tuple[int, int, int]]
     #[pyo3(text_signature = "($self, haystack, /)")]
     fn find(self_: PyRef<Self>, haystack: &str) -> PyResult<Vec<(usize, usize, u32)>> {
@@ -300,6 +308,8 @@ impl CharwiseDoubleArrayAhoCorasick {
     ///
     /// :param haystack: String to search for.
     /// :type haystack: str
+    /// :return: A list of matches. Each match is a tuple consisting of the start position, end
+    ///          position, and pattern ID.
     /// :rtype: list[tuple[int, int, int]]
     /// :raises ValueError: if the automaton is built with a LEFTMOST option.
     #[pyo3(text_signature = "($self, haystack, /)")]
@@ -349,6 +359,8 @@ impl CharwiseDoubleArrayAhoCorasick {
     ///
     /// :param haystack: String to search for.
     /// :type haystack: str
+    /// :return: A list of matches. Each match is a tuple consisting of the start position, end
+    ///          position, and pattern ID.
     /// :rtype: list[tuple[int, int, int]]
     /// :raises ValueError: if the automaton is built with a LEFTMOST option.
     #[pyo3(text_signature = "($self, haystack, /)")]
