@@ -10,7 +10,7 @@ Finding overlapped occurrences
 
 To search for all occurrences of registered patterns that allow for positional overlap in the input
 text, use ``find_overlapping()``. When you instantiate a new automaton, unique identifiers are
-assigned to each pattern in the input order. The match result has the character positions of the
+assigned to each pattern in the input order. The match result has the byte positions of the
 occurrence and its identifier.
 
 .. code-block:: python
