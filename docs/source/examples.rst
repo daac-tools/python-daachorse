@@ -65,3 +65,16 @@ following code, ab is reported because it is the earliest registered one.
    >>> pma = daachorse.DoubleArrayAhoCorasick(patterns, daachorse.MATCH_KIND_LEFTMOST_FIRST)
    >>> pma.find(b'abcd')
    [(0, 2, 0)]
+
+Find patterns on a string
+-------------------------
+
+To build an automaton for strings, use ``CharwiseDoubleArrayAhoCorasick`` instead.
+
+.. code-block:: python
+
+   >>> import daachorse
+   >>> patterns = ['全世界', '世界', 'に']
+   >>> pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns)
+   >>> pma.find('全世界中に')
+   [(0, 3, 0), (4, 5, 2)]
