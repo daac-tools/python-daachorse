@@ -56,7 +56,7 @@ impl DoubleArrayAhoCorasick {
     ///     >>> import daachorse
     ///     >>> patterns = [b'ab', b'a', b'abcd']
     ///     >>> pma = daachorse.DoubleArrayAhoCorasick(patterns, daachorse.MATCH_KIND_LEFTMOST_LONGEST)
-    ///     >>> pma.find('abcd')
+    ///     >>> pma.find(b'abcd')
     ///     [(0, 4, 2)]
     ///
     /// Example 3: Leftmost first semantics
@@ -71,17 +71,17 @@ impl DoubleArrayAhoCorasick {
     /// :return: A list of matches. Each match is a tuple consisting of the start position, end
     ///          position, and pattern ID.
     /// :rtype: list[tuple[int, int, int]]
-    #[pyo3(text_signature = "($self, haystack, /)")]
-    fn find(self_: PyRef<Self>, haystack: &[u8]) -> PyResult<Vec<(usize, usize, u32)>> {
-        let match_kind = self_.pma.match_kind();
-        let py = self_.py();
-        let pma = &self_.pma;
+    #[pyo3(signature = (haystack, /))]
+    fn find(&self, py: Python, haystack: &[u8]) -> PyResult<Vec<(usize, usize, u32)>> {
+        let match_kind = self.pma.match_kind();
         Ok(py.detach(|| match match_kind {
-            ::daachorse::MatchKind::Standard => pma
+            ::daachorse::MatchKind::Standard => self
+                .pma
                 .find_iter(haystack)
                 .map(|m| (m.start(), m.end(), m.value()))
                 .collect(),
-            ::daachorse::MatchKind::LeftmostLongest | ::daachorse::MatchKind::LeftmostFirst => pma
+            ::daachorse::MatchKind::LeftmostLongest | ::daachorse::MatchKind::LeftmostFirst => self
+                .pma
                 .leftmost_find_iter(haystack)
                 .map(|m| (m.start(), m.end(), m.value()))
                 .collect(),
@@ -103,15 +103,14 @@ impl DoubleArrayAhoCorasick {
     ///          position, and pattern ID.
     /// :rtype: list[tuple[int, int, int]]
     /// :raises ValueError: if the automaton is built with a LEFTMOST option.
-    #[pyo3(text_signature = "($self, haystack, /)")]
-    fn find_overlapping(self_: PyRef<Self>, haystack: &[u8]) -> PyResult<Vec<(usize, usize, u32)>> {
-        if self_.pma.match_kind() != ::daachorse::MatchKind::Standard {
+    #[pyo3(signature = (haystack, /))]
+    fn find_overlapping(&self, py: Python, haystack: &[u8]) -> PyResult<Vec<(usize, usize, u32)>> {
+        if self.pma.match_kind() != ::daachorse::MatchKind::Standard {
             return Err(PyValueError::new_err("match_kind must be STANDARD"));
         }
-        let py = self_.py();
-        let pma = &self_.pma;
         Ok(py.detach(|| {
-            pma.find_overlapping_iter(haystack)
+            self.pma
+                .find_overlapping_iter(haystack)
                 .map(|m| (m.start(), m.end(), m.value()))
                 .collect()
         }))
@@ -138,30 +137,52 @@ impl DoubleArrayAhoCorasick {
     ///          position, and pattern ID.
     /// :rtype: list[tuple[int, int, int]]
     /// :raises ValueError: if the automaton is built with a LEFTMOST option.
-    #[pyo3(text_signature = "($self, haystack, /)")]
+    #[pyo3(signature = (haystack, /))]
     fn find_overlapping_no_suffix(
-        self_: PyRef<Self>,
+        &self,
+        py: Python,
         haystack: &[u8],
     ) -> PyResult<Vec<(usize, usize, u32)>> {
-        if self_.pma.match_kind() != ::daachorse::MatchKind::Standard {
+        if self.pma.match_kind() != ::daachorse::MatchKind::Standard {
             return Err(PyValueError::new_err("match_kind must be STANDARD"));
         }
-        let py = self_.py();
-        let pma = &self_.pma;
         Ok(py.detach(|| {
-            pma.find_overlapping_no_suffix_iter(haystack)
+            self.pma
+                .find_overlapping_no_suffix_iter(haystack)
                 .map(|m| (m.start(), m.end(), m.value()))
                 .collect()
         }))
     }
 
-    #[pyo3(text_signature = "($self, /)")]
-    fn serialize(self_: PyRef<Self>) -> Vec<u8> {
-        let py = self_.py();
-        let pma = &self_.pma;
-        py.detach(|| pma.serialize())
+    /// Serializes the automaton into a bytes.
+    ///
+    /// Examples:
+    ///     >>> import daachorse
+    ///     >>> patterns = [b'bcd', b'cd', b'abc']
+    ///     >>> pma = daachorse.DoubleArrayAhoCorasick(patterns)
+    ///     >>> b = pma.serialize()
+    ///
+    /// :return: Serialized automaton.
+    /// :rtype: bytes
+    #[pyo3(signature = (/))]
+    fn serialize(&self, py: Python) -> Vec<u8> {
+        py.detach(|| self.pma.serialize())
     }
 
+    /// Deserializes the automaton from the given slice.
+    ///
+    /// Examples:
+    ///     >>> import daachorse
+    ///     >>> patterns = [b'bcd', b'cd', b'abc']
+    ///     >>> pma = daachorse.DoubleArrayAhoCorasick(patterns)
+    ///     >>> b = pma.serialize()
+    ///     >>> pma = daachorse.DoubleArrayAhoCorasick.deserialize(b)
+    ///
+    /// :param data: Bytes to deserialize.
+    /// :type data: bytes
+    /// :return: A deserialized automaton.
+    /// :rtype: daachorse.DoubleArrayAhoCorasick
+    /// :raises ValueError: if the automaton is invalid.
     #[staticmethod]
     #[pyo3(signature = (data, /))]
     fn deserialize(py: Python, data: &[u8]) -> PyResult<Self> {
@@ -257,13 +278,11 @@ impl CharwiseDoubleArrayAhoCorasick {
     /// :return: A list of matches. Each match is a tuple consisting of the start position, end
     ///          position, and pattern ID.
     /// :rtype: list[tuple[int, int, int]]
-    #[pyo3(text_signature = "($self, haystack, /)")]
-    fn find(self_: PyRef<Self>, haystack: &str) -> PyResult<Vec<(usize, usize, u32)>> {
+    #[pyo3(signature = (haystack, /))]
+    fn find(&self, py: Python, haystack: &str) -> PyResult<Vec<(usize, usize, u32)>> {
         let mut pos_map = vec![0; haystack.len() + 1];
         let mut len_in_chars = 0;
-        let match_kind = self_.pma.match_kind();
-        let py = self_.py();
-        let pma = &self_.pma;
+        let match_kind = self.pma.match_kind();
         Ok(py.detach(|| unsafe {
             for (i, (j, _)) in haystack.char_indices().enumerate() {
                 debug_assert!(j < pos_map.len());
@@ -272,7 +291,8 @@ impl CharwiseDoubleArrayAhoCorasick {
             }
             *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
             match match_kind {
-                ::daachorse::MatchKind::Standard => pma
+                ::daachorse::MatchKind::Standard => self
+                    .pma
                     .find_iter(haystack)
                     .map(|m| {
                         (
@@ -283,7 +303,8 @@ impl CharwiseDoubleArrayAhoCorasick {
                     })
                     .collect(),
                 ::daachorse::MatchKind::LeftmostLongest | ::daachorse::MatchKind::LeftmostFirst => {
-                    pma.leftmost_find_iter(haystack)
+                    self.pma
+                        .leftmost_find_iter(haystack)
                         .map(|m| {
                             (
                                 *pos_map.get_unchecked(m.start()),
@@ -312,13 +333,11 @@ impl CharwiseDoubleArrayAhoCorasick {
     ///          position, and pattern ID.
     /// :rtype: list[tuple[int, int, int]]
     /// :raises ValueError: if the automaton is built with a LEFTMOST option.
-    #[pyo3(text_signature = "($self, haystack, /)")]
-    fn find_overlapping(self_: PyRef<Self>, haystack: &str) -> PyResult<Vec<(usize, usize, u32)>> {
-        if self_.pma.match_kind() != ::daachorse::MatchKind::Standard {
+    #[pyo3(signature = (haystack, /))]
+    fn find_overlapping(&self, py: Python, haystack: &str) -> PyResult<Vec<(usize, usize, u32)>> {
+        if self.pma.match_kind() != ::daachorse::MatchKind::Standard {
             return Err(PyValueError::new_err("match_kind must be STANDARD"));
         }
-        let py = self_.py();
-        let pma = &self_.pma;
         Ok(py.detach(|| {
             let mut pos_map = vec![0; haystack.len() + 1];
             let mut len_in_chars = 0;
@@ -329,7 +348,8 @@ impl CharwiseDoubleArrayAhoCorasick {
                     len_in_chars = i;
                 }
                 *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
-                pma.find_overlapping_iter(haystack)
+                self.pma
+                    .find_overlapping_iter(haystack)
                     .map(|m| {
                         (
                             *pos_map.get_unchecked(m.start()),
@@ -363,16 +383,15 @@ impl CharwiseDoubleArrayAhoCorasick {
     ///          position, and pattern ID.
     /// :rtype: list[tuple[int, int, int]]
     /// :raises ValueError: if the automaton is built with a LEFTMOST option.
-    #[pyo3(text_signature = "($self, haystack, /)")]
+    #[pyo3(signature = (haystack, /))]
     fn find_overlapping_no_suffix(
-        self_: PyRef<Self>,
+        &self,
+        py: Python,
         haystack: &str,
     ) -> PyResult<Vec<(usize, usize, u32)>> {
-        if self_.pma.match_kind() != ::daachorse::MatchKind::Standard {
+        if self.pma.match_kind() != ::daachorse::MatchKind::Standard {
             return Err(PyValueError::new_err("match_kind must be STANDARD"));
         }
-        let py = self_.py();
-        let pma = &self_.pma;
         Ok(py.detach(|| {
             let mut pos_map = vec![0; haystack.len() + 1];
             let mut len_in_chars = 0;
@@ -383,7 +402,8 @@ impl CharwiseDoubleArrayAhoCorasick {
                     len_in_chars = i;
                 }
                 *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
-                pma.find_overlapping_no_suffix_iter(haystack)
+                self.pma
+                    .find_overlapping_no_suffix_iter(haystack)
                     .map(|m| {
                         (
                             *pos_map.get_unchecked(m.start()),
@@ -396,13 +416,35 @@ impl CharwiseDoubleArrayAhoCorasick {
         }))
     }
 
-    #[pyo3(text_signature = "($self, /)")]
-    fn serialize(self_: PyRef<Self>) -> Vec<u8> {
-        let py = self_.py();
-        let pma = &self_.pma;
-        py.detach(|| pma.serialize())
+    /// Serializes the automaton into a bytes.
+    ///
+    /// Examples:
+    ///     >>> import daachorse
+    ///     >>> patterns = ['bcd', 'cd', 'abc']
+    ///     >>> pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns)
+    ///     >>> b = pma.serialize()
+    ///
+    /// :return: Serialized automaton.
+    /// :rtype: bytes
+    #[pyo3(signature = (/))]
+    fn serialize(&self, py: Python) -> Vec<u8> {
+        py.detach(|| self.pma.serialize())
     }
 
+    /// Deserializes the automaton from the given slice.
+    ///
+    /// Examples:
+    ///     >>> import daachorse
+    ///     >>> patterns = ['bcd', 'cd', 'abc']
+    ///     >>> pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns)
+    ///     >>> b = pma.serialize()
+    ///     >>> pma = daachorse.CharwiseDoubleArrayAhoCorasick.deserialize(b)
+    ///
+    /// :param data: Bytes to deserialize.
+    /// :type data: bytes
+    /// :return: A deserialized automaton.
+    /// :rtype: daachorse.CharwiseDoubleArrayAhoCorasick
+    /// :raises ValueError: if the automaton is invalid.
     #[staticmethod]
     #[pyo3(signature = (data, /))]
     fn deserialize(py: Python, data: &[u8]) -> PyResult<Self> {

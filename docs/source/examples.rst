@@ -16,9 +16,9 @@ occurrence and its identifier.
 .. code-block:: python
 
    >>> import daachorse
-   >>> patterns = ['bcd', 'ab', 'a']
-   >>> pma = daachorse.Automaton(patterns)
-   >>> pma.find_overlapping('abcd')
+   >>> patterns = [b'bcd', b'ab', b'a']
+   >>> pma = daachorse.DoubleArrayAhoCorasick(patterns)
+   >>> pma.find_overlapping(b'abcd')
    [(0, 1, 2), (0, 2, 1), (1, 4, 0)]
 
 Finding non-overlapped occurrences with standard matching
@@ -30,9 +30,9 @@ the Aho-Corasick automaton and reports patterns first found in each iteration.
 .. code-block:: python
 
    >>> import daachorse
-   >>> patterns = ['bcd', 'ab', 'a']
-   >>> pma = daachorse.Automaton(patterns)
-   >>> pma.find('abcd')
+   >>> patterns = [b'bcd', b'ab', b'a']
+   >>> pma = daachorse.DoubleArrayAhoCorasick(patterns)
+   >>> pma.find(b'abcd')
    [(0, 1, 2), (1, 4, 0)]
 
 Finding non-overlapped occurrences with longest matching
@@ -44,9 +44,9 @@ If you want to search for the longest pattern without positional overlap in each
 .. code-block:: python
 
    >>> import daachorse
-   >>> patterns = ['ab', 'a', 'abcd']
-   >>> pma = daachorse.Automaton(patterns, daachorse.MATCH_KIND_LEFTMOST_LONGEST)
-   >>> pma.find('abcd')
+   >>> patterns = [b'ab', b'a', b'abcd']
+   >>> pma = daachorse.DoubleArrayAhoCorasick(patterns, daachorse.MATCH_KIND_LEFTMOST_LONGEST)
+   >>> pma.find(b'abcd')
    [(0, 4, 2)]
 
 Finding non-overlapped occurrences with leftmost-first matching
@@ -61,7 +61,7 @@ following code, ab is reported because it is the earliest registered one.
 .. code-block:: python
 
    >>> import daachorse
-   >>> patterns = ['ab', 'a', 'abcd']
-   >>> pma = daachorse.Automaton(patterns, daachorse.MATCH_KIND_LEFTMOST_FIRST)
-   >>> pma.find('abcd')
+   >>> patterns = [b'ab', b'a', b'abcd']
+   >>> pma = daachorse.DoubleArrayAhoCorasick(patterns, daachorse.MATCH_KIND_LEFTMOST_FIRST)
+   >>> pma.find(b'abcd')
    [(0, 2, 0)]
