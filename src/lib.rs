@@ -283,21 +283,23 @@ impl CharwiseDoubleArrayAhoCorasick {
         let mut pos_map = vec![0; haystack.len() + 1];
         let mut len_in_chars = 0;
         let match_kind = self.pma.match_kind();
-        Ok(py.detach(|| unsafe {
-            for (i, (j, _)) in haystack.char_indices().enumerate() {
-                debug_assert!(j < pos_map.len());
-                *pos_map.get_unchecked_mut(j) = i;
-                len_in_chars = i;
+        Ok(py.detach(|| {
+            unsafe {
+                for (i, (j, _)) in haystack.char_indices().enumerate() {
+                    debug_assert!(j < pos_map.len());
+                    *pos_map.get_unchecked_mut(j) = i;
+                    len_in_chars = i;
+                }
+                *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
             }
-            *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
             match match_kind {
                 ::daachorse::MatchKind::Standard => self
                     .pma
                     .find_iter(haystack)
                     .map(|m| {
                         (
-                            *pos_map.get_unchecked(m.start()),
-                            *pos_map.get_unchecked(m.end()),
+                            pos_map.get(m.start()).copied().unwrap_or_default(),
+                            pos_map.get(m.end()).copied().unwrap_or_default(),
                             m.value(),
                         )
                     })
@@ -307,8 +309,8 @@ impl CharwiseDoubleArrayAhoCorasick {
                         .leftmost_find_iter(haystack)
                         .map(|m| {
                             (
-                                *pos_map.get_unchecked(m.start()),
-                                *pos_map.get_unchecked(m.end()),
+                                pos_map.get(m.start()).copied().unwrap_or_default(),
+                                pos_map.get(m.end()).copied().unwrap_or_default(),
                                 m.value(),
                             )
                         })
@@ -348,17 +350,17 @@ impl CharwiseDoubleArrayAhoCorasick {
                     len_in_chars = i;
                 }
                 *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
-                self.pma
-                    .find_overlapping_iter(haystack)
-                    .map(|m| {
-                        (
-                            *pos_map.get_unchecked(m.start()),
-                            *pos_map.get_unchecked(m.end()),
-                            m.value(),
-                        )
-                    })
-                    .collect()
             }
+            self.pma
+                .find_overlapping_iter(haystack)
+                .map(|m| {
+                    (
+                        pos_map.get(m.start()).copied().unwrap_or_default(),
+                        pos_map.get(m.end()).copied().unwrap_or_default(),
+                        m.value(),
+                    )
+                })
+                .collect()
         }))
     }
 
@@ -402,17 +404,17 @@ impl CharwiseDoubleArrayAhoCorasick {
                     len_in_chars = i;
                 }
                 *pos_map.last_mut().unwrap_unchecked() = len_in_chars + 1;
-                self.pma
-                    .find_overlapping_no_suffix_iter(haystack)
-                    .map(|m| {
-                        (
-                            *pos_map.get_unchecked(m.start()),
-                            *pos_map.get_unchecked(m.end()),
-                            m.value(),
-                        )
-                    })
-                    .collect()
             }
+            self.pma
+                .find_overlapping_no_suffix_iter(haystack)
+                .map(|m| {
+                    (
+                        pos_map.get(m.start()).copied().unwrap_or_default(),
+                        pos_map.get(m.end()).copied().unwrap_or_default(),
+                        m.value(),
+                    )
+                })
+                .collect()
         }))
     }
 
