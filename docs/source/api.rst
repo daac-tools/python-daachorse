@@ -1,7 +1,10 @@
 API reference
 =============
 
-.. autoclass:: daachorse.Automaton
+.. autoclass:: daachorse.DoubleArrayAhoCorasick
+   :members:
+
+.. autoclass:: daachorse.CharwiseDoubleArrayAhoCorasick
    :members:
 
 .. data:: MATCH_KIND_STANDARD
