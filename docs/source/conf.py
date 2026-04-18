@@ -1,5 +1,7 @@
+import os
+
 project = 'python-daachorse'
-copyright = '2022, daac-tools'
+copyright = '2026, daac-tools'
 author = 'Koichi Akabe'
 
 extensions = [
@@ -8,4 +10,6 @@ extensions = [
 
 exclude_patterns = []
 
-html_theme = 'sphinx_rtd_theme'
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+if not on_rtd:
+    html_theme = 'sphinx_rtd_theme'
