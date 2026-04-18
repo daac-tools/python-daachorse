@@ -14,3 +14,8 @@ classifiers = [
   "Topic :: Software Development :: Libraries",
   "Topic :: Text Processing",
 ]
+
+[project.optional-dependencies]
+docs = [
+  "sphinx-rtd-theme",
+]
