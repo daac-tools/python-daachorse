@@ -100,7 +100,6 @@ jobs:
       uses: PyO3/maturin-action@v1
       with:
         target: ${{ matrix.target }}
-        manylinux: auto
         args: -i ${{ matrix.python-version }} --release
     - name: Upload wheels
       uses: actions/upload-artifact@v7
@@ -124,7 +123,6 @@ jobs:
       uses: PyO3/maturin-action@v1
       with:
         target: ${{ matrix.target }}
-        manylinux: auto
         args: -i ${{ matrix.python-version }} --release --target universal2-apple-darwin
     - name: Upload wheels
       uses: actions/upload-artifact@v7
@@ -143,10 +141,9 @@ jobs:
     steps:
       - uses: actions/download-artifact@v8
         with:
-          patterns: wheels-*
+          pattern: wheels-*
           merge-multiple: true
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8
       - name: Publish to PyPI
-        uses: PyO3/maturin-action@v1
-        with:
-          command: upload
-          args: --skip-existing *
+        run: uv publish wheels-*/*

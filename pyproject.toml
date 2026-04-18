@@ -4,7 +4,9 @@ build-backend = "maturin"
 
 [project]
 name = "daachorse"
-version = "0.2.0"
+version = "0.2.1"
+description = "🐎 A fast implementation of the Aho-Corasick algorithm using the compact double-array data structure"
+readme = "README.md"
 classifiers = [
   "License :: OSI Approved :: Apache Software License",
   "License :: OSI Approved :: MIT License",

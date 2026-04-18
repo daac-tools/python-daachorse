@@ -13,8 +13,8 @@ This is a Python wrapper.
 
 Run the following command:
 
-```
-$ pip install daachorse
+```shell
+pip install daachorse
 ```
 
 ### Build from source
@@ -22,14 +22,14 @@ $ pip install daachorse
 You need to install the Rust compiler following [the documentation](https://www.rust-lang.org/tools/install) beforehand.
 daachorse uses `pyproject.toml`, so you also need to upgrade pip to version 19 or later.
 
-```
-$ pip install --upgrade pip
+```shell
+pip install --upgrade pip
 ```
 
 After setting up the environment, you can install daachorse as follows:
 
-```
-$ pip install git+https://github.com/daac-tools/python-daachorse
+```shell
+pip install git+https://github.com/daac-tools/python-daachorse
 ```
 
 ## Example usage
