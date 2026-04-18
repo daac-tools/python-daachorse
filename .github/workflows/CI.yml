@@ -14,39 +14,13 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    strategy:
-      matrix:
-        runs-on: [ ubuntu-latest, windows-latest, macos-latest ]
-        python-version: [ '3.10', '3.11', '3.12', '3.13', '3.14' ]
-    runs-on: ${{ matrix.runs-on }}
-    steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-python@v6
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Build package
-      uses: PyO3/maturin-action@v1
-      with:
-        manylinux: auto
-        args: -i ${{ matrix.python-version }} --release
-    - name: Test package
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements-dev.txt
-        pip install daachorse --no-index --find-links target/wheels --force-reinstall
-        mypy --strict tests
-        pytest
-
-  pack-sdist:
-    if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [ test ]
+  sdist:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
     - uses: actions/setup-python@v6
       with:
-        python-version: '3.13'
+        python-version: '3.14'
     - name: Build package
       uses: PyO3/maturin-action@v1
       with:
@@ -57,14 +31,12 @@ jobs:
         name: wheels-sdist
         path: target/wheels
 
-  pack-linux:
-    if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [ test ]
+  linux:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [ '3.10', '3.11', '3.12', '3.13', '3.14' ]
-        target: [ x86_64, i686 ]
+        target: [ x86_64, x86 ]
     steps:
     - uses: actions/checkout@v6
     - uses: actions/setup-python@v6
@@ -76,15 +48,50 @@ jobs:
         target: ${{ matrix.target }}
         manylinux: auto
         args: -i ${{ matrix.python-version }} --release
+    - name: Test package
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+        pip install daachorse --no-index --find-links target/wheels --force-reinstall
+        mypy --strict tests
+        pytest
     - name: Upload wheels
       uses: actions/upload-artifact@v7
       with:
         name: wheels-linux-${{ matrix.python-version }}-${{ matrix.target }}
         path: target/wheels
 
-  pack-windows:
-    if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [ test ]
+  musllinux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.10', '3.11', '3.12', '3.13', '3.14' ]
+        target: [ x86_64, x86 ]
+    steps:
+    - uses: actions/checkout@v6
+    - uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Build package
+      uses: PyO3/maturin-action@v1
+      with:
+        target: ${{ matrix.target }}
+        manylinux: musllinux_1_2
+        args: -i ${{ matrix.python-version }} --release
+    - name: Test package
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+        pip install daachorse --no-index --find-links target/wheels --force-reinstall
+        mypy --strict tests
+        pytest
+    - name: Upload wheels
+      uses: actions/upload-artifact@v7
+      with:
+        name: wheels-musllinux-${{ matrix.python-version }}-${{ matrix.target }}
+        path: target/wheels
+
+  windows:
     runs-on: windows-latest
     strategy:
       matrix:
@@ -100,17 +107,21 @@ jobs:
       uses: PyO3/maturin-action@v1
       with:
         target: ${{ matrix.target }}
-        manylinux: auto
         args: -i ${{ matrix.python-version }} --release
+    - name: Test package
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+        pip install daachorse --no-index --find-links target/wheels --force-reinstall
+        mypy --strict tests
+        pytest
     - name: Upload wheels
       uses: actions/upload-artifact@v7
       with:
         name: wheels-windows-${{ matrix.python-version }}-${{ matrix.target }}
         path: target/wheels
 
-  pack-macos:
-    if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [ test ]
+  macos:
     runs-on: macos-latest
     strategy:
       matrix:
@@ -124,8 +135,14 @@ jobs:
       uses: PyO3/maturin-action@v1
       with:
         target: ${{ matrix.target }}
-        manylinux: auto
         args: -i ${{ matrix.python-version }} --release --target universal2-apple-darwin
+    - name: Test package
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+        pip install daachorse --no-index --find-links target/wheels --force-reinstall
+        mypy --strict tests
+        pytest
     - name: Upload wheels
       uses: actions/upload-artifact@v7
       with:
@@ -135,7 +152,7 @@ jobs:
   release:
     name: Release
     if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [ pack-sdist, pack-linux, pack-windows, pack-macos ]
+    needs: [ sdist, linux, musllinux, windows, macos ]
     permissions:
       contents: read
       id-token: write
@@ -143,9 +160,9 @@ jobs:
     steps:
       - uses: actions/download-artifact@v8
         with:
-          patterns: wheels-*
+          subject-path: 'wheels-*/*'
           merge-multiple: true
       - name: Install uv
         uses: astral-sh/setup-uv@v8
       - name: Publish to PyPI
-        run: uv publish wheels-*
+        run: uv publish 'wheels-*/*'
