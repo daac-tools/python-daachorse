@@ -45,15 +45,15 @@ impl DoubleArrayAhoCorasick {
 
     /// Returns a list of non-overlapping matches in the given haystack.
     ///
-    /// According to the `match_kind` option you specified in the construction, the behavior is
+    /// According to the ``match_kind`` option you specified in the construction, the behavior is
     /// changed for multiple possible matches, as follows.
     ///
-    /// * If you set `MATCH_KIND_STANDARD` (default), the automaton searches from the beginning of
-    /// the input string, yielding a value immediately when a pattern is found.
-    /// * If you set `MATCH_KIND_LEFTMOST_LONGEST`, the automaton reports matches corresponding to
+    /// * If you set ``MATCH_KIND_STANDARD`` (default), the automaton searches from the beginning of
+    ///   the input string, yielding a value immediately when a pattern is found.
+    /// * If you set ``MATCH_KIND_LEFTMOST_LONGEST``, the automaton reports matches corresponding to
     ///   the longest pattern.
-    /// * If you set `MATCH_KIND_LEFTMOST_FIRST`, the automaton reports matches corresponding to the
-    ///   pattern earlier registered to the automaton.
+    /// * If you set ``MATCH_KIND_LEFTMOST_FIRST``, the automaton reports matches corresponding to
+    ///   the pattern earlier registered to the automaton.
     ///
     /// The next search resumes from the end of the previously found pattern.
     ///
@@ -67,14 +67,20 @@ impl DoubleArrayAhoCorasick {
     /// Example 2: Leftmost longest semantics
     ///     >>> import daachorse
     ///     >>> patterns = [b'ab', b'a', b'abcd']
-    ///     >>> pma = daachorse.DoubleArrayAhoCorasick(patterns, daachorse.MATCH_KIND_LEFTMOST_LONGEST)
+    ///     >>> pma = daachorse.DoubleArrayAhoCorasick(
+    ///     ...     patterns,
+    ///     ...     daachorse.MATCH_KIND_LEFTMOST_LONGEST
+    ///     ... )
     ///     >>> pma.find(b'abcd')
     ///     [(0, 4, 2)]
     ///
     /// Example 3: Leftmost first semantics
     ///     >>> import daachorse
     ///     >>> patterns = [b'ab', b'a', b'abcd']
-    ///     >>> pma = daachorse.DoubleArrayAhoCorasick(patterns, daachorse.MATCH_KIND_LEFTMOST_FIRST)
+    ///     >>> pma = daachorse.DoubleArrayAhoCorasick(
+    ///     ...     patterns,
+    ///     ...     daachorse.MATCH_KIND_LEFTMOST_FIRST
+    ///     ... )
     ///     >>> pma.find(b'abcd')
     ///     [(0, 2, 0)]
     ///
@@ -137,8 +143,9 @@ impl DoubleArrayAhoCorasick {
 
     /// Returns a list of overlapping matches without suffixes in the given haystack.
     ///
-    /// The behavior of the automaton is similar to `find_overlapping()`, except that upon reaching
-    /// a given position, it yields only the single longest pattern ending at that position.
+    /// The behavior of the automaton is similar to ``find_overlapping()``, except that upon
+    /// reaching a given position, it yields only the single longest pattern ending at that
+    /// position.
     ///
     /// Examples:
     ///     >>> import daachorse
@@ -268,15 +275,15 @@ impl CharwiseDoubleArrayAhoCorasick {
 
     /// Returns a list of non-overlapping matches in the given haystack.
     ///
-    /// According to the `match_kind` option you specified in the construction, the behavior is
+    /// According to the ``match_kind`` option you specified in the construction, the behavior is
     /// changed for multiple possible matches, as follows.
     ///
-    /// * If you set `MATCH_KIND_STANDARD` (default), the automaton searches from the beginning of
-    /// the input string, yielding a value immediately when a pattern is found.
-    /// * If you set `MATCH_KIND_LEFTMOST_LONGEST`, the automaton reports matches corresponding to
+    /// * If you set ``MATCH_KIND_STANDARD`` (default), the automaton searches from the beginning of
+    ///   the input string, yielding a value immediately when a pattern is found.
+    /// * If you set ``MATCH_KIND_LEFTMOST_LONGEST``, the automaton reports matches corresponding to
     ///   the longest pattern.
-    /// * If you set `MATCH_KIND_LEFTMOST_FIRST`, the automaton reports matches corresponding to the
-    ///   pattern earlier registered to the automaton.
+    /// * If you set ``MATCH_KIND_LEFTMOST_FIRST``, the automaton reports matches corresponding to
+    ///   the pattern earlier registered to the automaton.
     ///
     /// The next search resumes from the end of the previously found pattern.
     ///
@@ -290,14 +297,20 @@ impl CharwiseDoubleArrayAhoCorasick {
     /// Example 2: Leftmost longest semantics
     ///     >>> import daachorse
     ///     >>> patterns = ['ab', 'a', 'abcd']
-    ///     >>> pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns, daachorse.MATCH_KIND_LEFTMOST_LONGEST)
+    ///     >>> pma = daachorse.CharwiseDoubleArrayAhoCorasick(
+    ///     ...     patterns,
+    ///     ...     daachorse.MATCH_KIND_LEFTMOST_LONGEST
+    ///     ... )
     ///     >>> pma.find('abcd')
     ///     [(0, 4, 2)]
     ///
     /// Example 3: Leftmost first semantics
     ///     >>> import daachorse
     ///     >>> patterns = ['ab', 'a', 'abcd']
-    ///     >>> pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns, daachorse.MATCH_KIND_LEFTMOST_FIRST)
+    ///     >>> pma = daachorse.CharwiseDoubleArrayAhoCorasick(
+    ///     ...     patterns,
+    ///     ...     daachorse.MATCH_KIND_LEFTMOST_FIRST
+    ///     ... )
     ///     >>> pma.find('abcd')
     ///     [(0, 2, 0)]
     ///
@@ -401,8 +414,9 @@ impl CharwiseDoubleArrayAhoCorasick {
 
     /// Returns a list of overlapping matches without suffixes in the given haystack.
     ///
-    /// The behavior of the automaton is similar to `find_overlapping()`, except that upon reaching
-    /// a given position, it yields only the single longest pattern ending at that position.
+    /// The behavior of the automaton is similar to ``find_overlapping()``, except that upon
+    /// reaching a given position, it yields only the single longest pattern ending at that
+    /// position.
     ///
     /// Examples:
     ///     >>> import daachorse
