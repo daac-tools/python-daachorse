@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "daachorse"
-version = "0.2.2"
+version = "0.3.0"
 description = "🐎 A fast implementation of the Aho-Corasick algorithm using the compact double-array data structure"
 readme = "README.md"
 classifiers = [

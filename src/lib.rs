@@ -45,6 +45,18 @@ impl DoubleArrayAhoCorasick {
 
     /// Returns a list of non-overlapping matches in the given haystack.
     ///
+    /// According to the `match_kind` option you specified in the construction, the behavior is
+    /// changed for multiple possible matches, as follows.
+    ///
+    /// * If you set `MATCH_KIND_STANDARD` (default), the automaton searches from the beginning of
+    /// the input string, yielding a value immediately when a pattern is found.
+    /// * If you set `MATCH_KIND_LEFTMOST_LONGEST`, the automaton reports matches corresponding to
+    ///   the longest pattern.
+    /// * If you set `MATCH_KIND_LEFTMOST_FIRST`, the automaton reports matches corresponding to the
+    ///   pattern earlier registered to the automaton.
+    ///
+    /// The next search resumes from the end of the previously found pattern.
+    ///
     /// Example 1: Standard semantics
     ///     >>> import daachorse
     ///     >>> patterns = [b'bcd', b'ab', b'a']
@@ -90,6 +102,13 @@ impl DoubleArrayAhoCorasick {
 
     /// Returns a list of overlapping matches in the given haystack.
     ///
+    /// The automaton follows the standard behavior of the Aho-Corasick algorithm. It searches from
+    /// the beginning of the input string, and upon reaching a given position, it yields the
+    /// patterns ending at that position in descending order of length.
+    ///
+    /// If the pattern set contains duplicate patterns, they are yielded in the order they were
+    /// registered.
+    ///
     /// Examples:
     ///     >>> import daachorse
     ///     >>> patterns = [b'bcd', b'ab', b'a']
@@ -116,13 +135,10 @@ impl DoubleArrayAhoCorasick {
         }))
     }
 
-    /// Returns a list of overlapping matches without suffixes in the given haystack iterator.
+    /// Returns a list of overlapping matches without suffixes in the given haystack.
     ///
-    /// The Aho-Corasick algorithm reads through the haystack from left to right and reports
-    /// matches when it reaches the end of each pattern. In the overlapping match, more than one
-    /// pattern can be returned per report.
-    ///
-    /// This function returns the first match on each report.
+    /// The behavior of the automaton is similar to `find_overlapping()`, except that upon reaching
+    /// a given position, it yields only the single longest pattern ending at that position.
     ///
     /// Examples:
     ///     >>> import daachorse
@@ -252,6 +268,18 @@ impl CharwiseDoubleArrayAhoCorasick {
 
     /// Returns a list of non-overlapping matches in the given haystack.
     ///
+    /// According to the `match_kind` option you specified in the construction, the behavior is
+    /// changed for multiple possible matches, as follows.
+    ///
+    /// * If you set `MATCH_KIND_STANDARD` (default), the automaton searches from the beginning of
+    /// the input string, yielding a value immediately when a pattern is found.
+    /// * If you set `MATCH_KIND_LEFTMOST_LONGEST`, the automaton reports matches corresponding to
+    ///   the longest pattern.
+    /// * If you set `MATCH_KIND_LEFTMOST_FIRST`, the automaton reports matches corresponding to the
+    ///   pattern earlier registered to the automaton.
+    ///
+    /// The next search resumes from the end of the previously found pattern.
+    ///
     /// Example 1: Standard semantics
     ///     >>> import daachorse
     ///     >>> patterns = ['bcd', 'ab', 'a']
@@ -322,6 +350,13 @@ impl CharwiseDoubleArrayAhoCorasick {
 
     /// Returns a list of overlapping matches in the given haystack.
     ///
+    /// The automaton follows the standard behavior of the Aho-Corasick algorithm. It searches from
+    /// the beginning of the input string, and upon reaching a given position, it yields the
+    /// patterns ending at that position in descending order of length.
+    ///
+    /// If the pattern set contains duplicate patterns, they are yielded in the order they were
+    /// registered.
+    ///
     /// Examples:
     ///     >>> import daachorse
     ///     >>> patterns = ['bcd', 'ab', 'a']
@@ -364,13 +399,10 @@ impl CharwiseDoubleArrayAhoCorasick {
         }))
     }
 
-    /// Returns a list of overlapping matches without suffixes in the given haystack iterator.
+    /// Returns a list of overlapping matches without suffixes in the given haystack.
     ///
-    /// The Aho-Corasick algorithm reads through the haystack from left to right and reports
-    /// matches when it reaches the end of each pattern. In the overlapping match, more than one
-    /// pattern can be returned per report.
-    ///
-    /// This function returns the first match on each report.
+    /// The behavior of the automaton is similar to `find_overlapping()`, except that upon reaching
+    /// a given position, it yields only the single longest pattern ending at that position.
     ///
     /// Examples:
     ///     >>> import daachorse
