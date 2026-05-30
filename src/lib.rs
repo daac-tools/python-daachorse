@@ -321,7 +321,7 @@ impl CharwiseDoubleArrayAhoCorasick {
     ///     >>> pma.find('abcd')
     ///     [(0, 2, 0)]
     ///
-    /// :param haystack: String to search for.
+    /// :param haystack: String to search in.
     /// :type haystack: str
     /// :return: A list of matches. Each match is a tuple consisting of the start position, end
     ///          position, and pattern ID.
@@ -385,7 +385,7 @@ impl CharwiseDoubleArrayAhoCorasick {
     ///     >>> pma.find_overlapping('abcd')
     ///     [(0, 1, 2), (0, 2, 1), (1, 4, 0)]
     ///
-    /// :param haystack: String to search for.
+    /// :param haystack: String to search in.
     /// :type haystack: str
     /// :return: A list of matches. Each match is a tuple consisting of the start position, end
     ///          position, and pattern ID.
