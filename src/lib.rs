@@ -45,17 +45,20 @@ impl DoubleArrayAhoCorasick {
 
     /// Returns a list of non-overlapping matches in the given haystack.
     ///
-    /// According to the ``match_kind`` option you specified in the construction, the behavior is
-    /// changed for multiple possible matches, as follows.
+    /// This function searches from the beginning of the input bytes, adding a pattern immediately
+    /// to the resulting list when a pattern is found. The next search resumes from the end of the
+    /// previously found pattern. When the end of the input string is reached, it returns the
+    /// resulting list.
     ///
-    /// * If you set ``MATCH_KIND_STANDARD`` (default), the automaton searches from the beginning of
-    ///   the input string, yielding a value immediately when a pattern is found.
-    /// * If you set ``MATCH_KIND_LEFTMOST_LONGEST``, the automaton reports matches corresponding to
-    ///   the longest pattern.
-    /// * If you set ``MATCH_KIND_LEFTMOST_FIRST``, the automaton reports matches corresponding to
-    ///   the pattern earlier registered to the automaton.
+    /// Depending on the ``match_kind`` option specified during construction, the behavior differs
+    /// for multiple possible matches, as follows.
     ///
-    /// The next search resumes from the end of the previously found pattern.
+    /// * If you set ``MATCH_KIND_STANDARD`` (default), it reports the match correspinding to the
+    ///   shortest pattern.
+    /// * If you set ``MATCH_KIND_LEFTMOST_LONGEST``, it reports the match corresponding to the
+    ///   longest pattern.
+    /// * If you set ``MATCH_KIND_LEFTMOST_FIRST``, it reports matches corresponding to the pattern
+    ///   that was registered earlier in the automaton.
     ///
     /// Example 1: Standard semantics
     ///     >>> import daachorse
@@ -84,7 +87,7 @@ impl DoubleArrayAhoCorasick {
     ///     >>> pma.find(b'abcd')
     ///     [(0, 2, 0)]
     ///
-    /// :param haystack: Bytes to search for.
+    /// :param haystack: Bytes to search in.
     /// :type haystack: bytes
     /// :return: A list of matches. Each match is a tuple consisting of the start position, end
     ///          position, and pattern ID.
@@ -108,12 +111,13 @@ impl DoubleArrayAhoCorasick {
 
     /// Returns a list of overlapping matches in the given haystack.
     ///
-    /// The automaton follows the standard behavior of the Aho-Corasick algorithm. It searches from
-    /// the beginning of the input string, and upon reaching a given position, it yields the
-    /// patterns ending at that position in descending order of length.
+    /// This function follows the standard behavior of the Aho-Corasick algorithm. It searches from
+    /// the beginning of the input bytes, and upon reaching a given position, it adds the patterns
+    /// ending at that position to the resulting list in descending order of length. When the end of
+    /// the input bytes is reached, it returns the resulting list.
     ///
-    /// If the pattern set contains duplicate patterns, they are yielded in the order they were
-    /// registered.
+    /// If the pattern set contains duplicate patterns, they are added to the list in the order they
+    /// were registered.
     ///
     /// Examples:
     ///     >>> import daachorse
@@ -122,7 +126,7 @@ impl DoubleArrayAhoCorasick {
     ///     >>> pma.find_overlapping(b'abcd')
     ///     [(0, 1, 2), (0, 2, 1), (1, 4, 0)]
     ///
-    /// :param haystack: Bytes to search for.
+    /// :param haystack: Bytes to search in.
     /// :type haystack: bytes
     /// :return: A list of matches. Each match is a tuple consisting of the start position, end
     ///          position, and pattern ID.
@@ -143,9 +147,9 @@ impl DoubleArrayAhoCorasick {
 
     /// Returns a list of overlapping matches without suffixes in the given haystack.
     ///
-    /// The behavior of the automaton is similar to ``find_overlapping()``, except that upon
-    /// reaching a given position, it yields only the single longest pattern ending at that
-    /// position.
+    /// The behavior of this function is similar to ``find_overlapping()``, except that upon
+    /// reaching a given position, it adds only the single longest pattern ending at that position
+    /// to the resulting list.
     ///
     /// Examples:
     ///     >>> import daachorse
@@ -154,7 +158,7 @@ impl DoubleArrayAhoCorasick {
     ///     >>> pma.find_overlapping_no_suffix(b'abcd')
     ///     [(0, 3, 2), (1, 4, 0)]
     ///
-    /// :param haystack: Bytes to search for.
+    /// :param haystack: Bytes to search in.
     /// :type haystack: bytes
     /// :return: A list of matches. Each match is a tuple consisting of the start position, end
     ///          position, and pattern ID.
@@ -275,17 +279,20 @@ impl CharwiseDoubleArrayAhoCorasick {
 
     /// Returns a list of non-overlapping matches in the given haystack.
     ///
-    /// According to the ``match_kind`` option you specified in the construction, the behavior is
-    /// changed for multiple possible matches, as follows.
+    /// This function searches from the beginning of the input string, adding a pattern immediately
+    /// to the resulting list when a pattern is found. The next search resumes from the end of the
+    /// previously found pattern. When the end of the input string is reached, it returns the
+    /// resulting list.
     ///
-    /// * If you set ``MATCH_KIND_STANDARD`` (default), the automaton searches from the beginning of
-    ///   the input string, yielding a value immediately when a pattern is found.
-    /// * If you set ``MATCH_KIND_LEFTMOST_LONGEST``, the automaton reports matches corresponding to
-    ///   the longest pattern.
-    /// * If you set ``MATCH_KIND_LEFTMOST_FIRST``, the automaton reports matches corresponding to
-    ///   the pattern earlier registered to the automaton.
+    /// Depending on the ``match_kind`` option specified during construction, the behavior differs
+    /// for multiple possible matches, as follows.
     ///
-    /// The next search resumes from the end of the previously found pattern.
+    /// * If you set ``MATCH_KIND_STANDARD`` (default), it reports the match correspinding to the
+    ///   shortest pattern.
+    /// * If you set ``MATCH_KIND_LEFTMOST_LONGEST``, it reports the match corresponding to the
+    ///   longest pattern.
+    /// * If you set ``MATCH_KIND_LEFTMOST_FIRST``, it reports matches corresponding to the pattern
+    ///   that was registered earlier in the automaton.
     ///
     /// Example 1: Standard semantics
     ///     >>> import daachorse
@@ -363,12 +370,13 @@ impl CharwiseDoubleArrayAhoCorasick {
 
     /// Returns a list of overlapping matches in the given haystack.
     ///
-    /// The automaton follows the standard behavior of the Aho-Corasick algorithm. It searches from
-    /// the beginning of the input string, and upon reaching a given position, it yields the
-    /// patterns ending at that position in descending order of length.
+    /// This function follows the standard behavior of the Aho-Corasick algorithm. It searches from
+    /// the beginning of the input string, and upon reaching a given position, it adds the patterns
+    /// ending at that position to the resulting list in descending order of length. When the end of
+    /// the input string is reached, it returns the resulting list.
     ///
-    /// If the pattern set contains duplicate patterns, they are yielded in the order they were
-    /// registered.
+    /// If the pattern set contains duplicate patterns, they are added to the list in the order they
+    /// were registered.
     ///
     /// Examples:
     ///     >>> import daachorse
@@ -414,9 +422,9 @@ impl CharwiseDoubleArrayAhoCorasick {
 
     /// Returns a list of overlapping matches without suffixes in the given haystack.
     ///
-    /// The behavior of the automaton is similar to ``find_overlapping()``, except that upon
-    /// reaching a given position, it yields only the single longest pattern ending at that
-    /// position.
+    /// The behavior of this function is similar to ``find_overlapping()``, except that upon
+    /// reaching a given position, it adds only the single longest pattern ending at that position
+    /// to the resulting list.
     ///
     /// Examples:
     ///     >>> import daachorse
@@ -425,7 +433,7 @@ impl CharwiseDoubleArrayAhoCorasick {
     ///     >>> pma.find_overlapping_no_suffix('abcd')
     ///     [(0, 3, 2), (1, 4, 0)]
     ///
-    /// :param haystack: String to search for.
+    /// :param haystack: String to search in.
     /// :type haystack: str
     /// :return: A list of matches. Each match is a tuple consisting of the start position, end
     ///          position, and pattern ID.

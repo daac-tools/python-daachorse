@@ -1,12 +1,12 @@
 Example usage
 =============
 
-Daachorse contains some search options, ranging from basic matching with the Aho-Corasick algorithm
-to trickier matching. All of them will run very fast based on the double-array data structure and
-can be easily plugged into your application as shown below.
+Daachorse contains some search options, ranging from standard matching with the Aho-Corasick
+algorithm to more advanced matching. All of them run efficiently, powered by the double-array data
+structure, and can be easily plugged into your application, as shown below.
 
-Finding overlapped occurrences
-------------------------------
+Finding overlapping occurrences
+-------------------------------
 
 To search for all occurrences of registered patterns that allow for positional overlap in the input
 text, use ``find_overlapping()``. When you instantiate a new automaton, unique identifiers are
@@ -21,11 +21,11 @@ occurrence and its identifier.
    >>> pma.find_overlapping(b'abcd')
    [(0, 1, 2), (0, 2, 1), (1, 4, 0)]
 
-Finding non-overlapped occurrences with standard matching
----------------------------------------------------------
+Finding non-overlapping occurrences with standard matching
+----------------------------------------------------------
 
-If you do not want to allow positional overlap, use ``find()`` instead. It performs the search on
-the Aho-Corasick automaton and reports patterns first found in each iteration.
+To disallow positional overlap, use ``find()`` instead. It performs the search on the Aho-Corasick
+automaton and reports the first matching pattern found at each search position.
 
 .. code-block:: python
 
@@ -35,11 +35,11 @@ the Aho-Corasick automaton and reports patterns first found in each iteration.
    >>> pma.find(b'abcd')
    [(0, 1, 2), (1, 4, 0)]
 
-Finding non-overlapped occurrences with longest matching
---------------------------------------------------------
+Finding non-overlapping occurrences with longest matching
+---------------------------------------------------------
 
-If you want to search for the longest pattern without positional overlap in each iteration, use
-``MATCH_KIND_LEFTMOST_LONGEST`` in the construction.
+To search for the longest pattern without positional overlap in each iteration, use
+``MATCH_KIND_LEFTMOST_LONGEST`` during construction.
 
 .. code-block:: python
 
@@ -49,14 +49,14 @@ If you want to search for the longest pattern without positional overlap in each
    >>> pma.find(b'abcd')
    [(0, 4, 2)]
 
-Finding non-overlapped occurrences with leftmost-first matching
----------------------------------------------------------------
+Finding non-overlapping occurrences with leftmost-first matching
+----------------------------------------------------------------
 
-If you want to find the the earliest registered pattern among ones starting from the search
-position, use ``MATCH_KIND_LEFTMOST_FIRST``.
+To search for the earliest registered pattern among those starting from the search position,
+use ``MATCH_KIND_LEFTMOST_FIRST``.
 
-This is so-called *the leftmost first match*, a bit tricky search option. For example, in the
-following code, ab is reported because it is the earliest registered one.
+This semantics is so-called *the leftmost first match*, a tricky search option. For example,
+in the following code, ``ab`` is reported because it is the earliest registered one.
 
 .. code-block:: python
 
@@ -66,8 +66,8 @@ following code, ab is reported because it is the earliest registered one.
    >>> pma.find(b'abcd')
    [(0, 2, 0)]
 
-Find patterns on a string
--------------------------
+Finding patterns on a string
+----------------------------
 
 To build an automaton for strings, use ``CharwiseDoubleArrayAhoCorasick`` instead.
 
