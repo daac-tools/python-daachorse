@@ -77,6 +77,7 @@ def test_find_overlapping_invalid_option() -> None:
     with pytest.raises(ValueError):
         pma.find_overlapping(haystack)
 
+
 def test_serialization() -> None:
     haystack = b'this is a pen'
     patterns = [b't', b'hi', b'h', b'this', b'pe']
