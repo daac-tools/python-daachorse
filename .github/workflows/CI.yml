@@ -20,8 +20,8 @@ jobs:
         runs-on: [ ubuntu-latest, windows-latest, macos-latest ]
     runs-on: ${{ matrix.runs-on }}
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-python@v6
+    - uses: actions/checkout@v7
+    - uses: actions/setup-python@v7
       with:
         python-version: '3.13'
     - name: Build package
@@ -43,8 +43,8 @@ jobs:
         python-version: [ '3.10', '3.11', '3.12', '3.13', '3.14' ]
     runs-on: ${{ matrix.runs-on }}
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-python@v6
+    - uses: actions/checkout@v7
+    - uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
     - uses: actions/download-artifact@v8
@@ -64,8 +64,8 @@ jobs:
     needs: [ test ]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-python@v6
+    - uses: actions/checkout@v7
+    - uses: actions/setup-python@v7
       with:
         python-version: '3.13'
     - name: Build package
@@ -86,7 +86,7 @@ jobs:
       matrix:
         target: [ x86_64, i686 ]
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Build package
       uses: PyO3/maturin-action@v1
       with:
@@ -107,8 +107,8 @@ jobs:
       matrix:
         target: [ x64, x86 ]
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-python@v6
+    - uses: actions/checkout@v7
+    - uses: actions/setup-python@v7
       with:
         python-version: '3.13'
         architecture: ${{ matrix.target }}
@@ -128,8 +128,8 @@ jobs:
     needs: [ test ]
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-python@v6
+    - uses: actions/checkout@v7
+    - uses: actions/setup-python@v7
       with:
         python-version: '3.13'
     - name: Build package
@@ -155,6 +155,6 @@ jobs:
         with:
           pattern: wheels-*
       - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
       - name: Publish to PyPI
         run: uv publish wheels-*/*
