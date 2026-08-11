@@ -112,6 +112,21 @@ To build an automaton for strings, use `CharwiseDoubleArrayAhoCorasick` instead.
 [(0, 3, 0), (4, 5, 2)]
 ```
 
+### Profile-Guided Optimization (PGO)
+
+The double array constructed by daachorse is designed to improve CPU cache efficiency. However, it
+is not always the optimal layout for every document being scanned.
+
+daachorse addresses this issue by supporting Profile-Guided Optimization (PGO). By providing a
+corpus when constructing the automaton, the memory layout is optimized, which may improve
+performance on documents similar to the given corpus.
+
+```python
+>>> import daachorse
+>>> patterns = [b'ab', b'a', b'abcd']
+>>> pma = daachorse.DoubleArrayAhoCorasick(patterns, corpus=[b'abcd'])
+```
+
 ## License
 
 Licensed under either of
