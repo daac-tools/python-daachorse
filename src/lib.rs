@@ -15,8 +15,12 @@ use pyo3::{
 ///
 /// :param patterns: List of bytes patterns.
 /// :param match_kind: A search option of the Aho-Corasick automaton.
+/// :param corpus: List of bytes to be used as a corpus for the profile-guided optimization.
+/// :param use_prefilter: Whether to use a prefilter.
 /// :type patterns: list[bytes]
 /// :type match_kind: int
+/// :type corpus: list[bytes] | None
+/// :type use_prefilter: bool
 /// :rtype: daachorse.DoubleArrayAhoCorasick
 #[pyclass(module = "daachorse")]
 struct DoubleArrayAhoCorasick {
@@ -26,17 +30,35 @@ struct DoubleArrayAhoCorasick {
 #[pymethods]
 impl DoubleArrayAhoCorasick {
     #[new]
-    #[pyo3(signature = (patterns, /, match_kind = 0))]
-    fn new(py: Python, patterns: Vec<Py<PyBytes>>, match_kind: u8) -> PyResult<Self> {
-        let raw_patterns: PyResult<Vec<Vec<u8>>> =
-            patterns.iter().map(|pat| pat.extract(py)).collect();
-        let raw_patterns = raw_patterns?;
+    #[pyo3(signature = (patterns, /, match_kind = 0, corpus = None, use_prefilter = true))]
+    fn new(
+        py: Python,
+        patterns: Vec<Py<PyBytes>>,
+        match_kind: u8,
+        corpus: Option<Vec<Py<PyBytes>>>,
+        use_prefilter: bool,
+    ) -> PyResult<Self> {
+        let raw_patterns = patterns
+            .iter()
+            .map(|pat| pat.extract(py))
+            .collect::<PyResult<Vec<Vec<u8>>>>()?;
         let match_kind = ::daachorse::MatchKind::from(match_kind);
+        let raw_corpus = corpus.map_or_else(
+            || Ok(vec![]),
+            |corpus| {
+                corpus
+                    .iter()
+                    .map(|c| c.extract(py))
+                    .collect::<PyResult<Vec<Vec<u8>>>>()
+            },
+        )?;
         Ok(Self {
             pma: py
                 .detach(|| {
                     ::daachorse::DoubleArrayAhoCorasickBuilder::new()
                         .match_kind(match_kind)
+                        .corpus(raw_corpus)
+                        .use_prefilter(use_prefilter)
                         .build(raw_patterns)
                 })
                 .map_err(|e| PyValueError::new_err(e.to_string()))?,
@@ -249,8 +271,12 @@ impl DoubleArrayAhoCorasick {
 ///
 /// :param patterns: List of string patterns.
 /// :param match_kind: A search option of the Aho-Corasick automaton.
+/// :param corpus: List of strings to be used as a corpus for the profile-guided optimization.
+/// :param use_prefilter: Whether to use a prefilter.
 /// :type patterns: list[str]
 /// :type match_kind: int
+/// :type corpus: list[str] | None
+/// :type use_prefilter: bool
 /// :rtype: daachorse.CharwiseDoubleArrayAhoCorasick
 #[pyclass(module = "daachorse")]
 struct CharwiseDoubleArrayAhoCorasick {
@@ -260,17 +286,35 @@ struct CharwiseDoubleArrayAhoCorasick {
 #[pymethods]
 impl CharwiseDoubleArrayAhoCorasick {
     #[new]
-    #[pyo3(signature = (patterns, /, match_kind = 0))]
-    fn new(py: Python, patterns: Vec<Py<PyString>>, match_kind: u8) -> PyResult<Self> {
-        let raw_patterns: PyResult<Vec<String>> =
-            patterns.iter().map(|pat| pat.extract(py)).collect();
-        let raw_patterns = raw_patterns?;
+    #[pyo3(signature = (patterns, /, match_kind = 0, corpus = None, use_prefilter = true))]
+    fn new(
+        py: Python,
+        patterns: Vec<Py<PyString>>,
+        match_kind: u8,
+        corpus: Option<Vec<Py<PyString>>>,
+        use_prefilter: bool,
+    ) -> PyResult<Self> {
+        let raw_patterns = patterns
+            .iter()
+            .map(|pat| pat.extract(py))
+            .collect::<PyResult<Vec<String>>>()?;
         let match_kind = ::daachorse::MatchKind::from(match_kind);
+        let raw_corpus = corpus.map_or_else(
+            || Ok(vec![]),
+            |corpus| {
+                corpus
+                    .iter()
+                    .map(|c| c.extract(py))
+                    .collect::<PyResult<Vec<String>>>()
+            },
+        )?;
         Ok(Self {
             pma: py
                 .detach(|| {
                     ::daachorse::CharwiseDoubleArrayAhoCorasickBuilder::new()
                         .match_kind(match_kind)
+                        .corpus(raw_corpus)
+                        .use_prefilter(use_prefilter)
                         .build(raw_patterns)
                 })
                 .map_err(|e| PyValueError::new_err(e.to_string()))?,

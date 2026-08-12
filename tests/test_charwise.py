@@ -78,6 +78,31 @@ def test_find_overlapping_invalid_option() -> None:
         pma.find_overlapping(haystack)
 
 
+def test_corpus() -> None:
+    haystack = 'this is a テスト'
+    patterns = ['t', 'hi', 'h', 'this', 'テス']
+    corpus = ['this is a テスト', 'that is a テキスト']
+    pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns, corpus=corpus)
+
+    assert [
+        (0, 1, 0),
+        (1, 2, 2),
+        (10, 12, 4),
+    ] == pma.find(haystack)
+
+
+def test_use_prefilter_disabled() -> None:
+    haystack = 'this is a テスト'
+    patterns = ['t', 'hi', 'h', 'this', 'テス']
+    pma = daachorse.CharwiseDoubleArrayAhoCorasick(patterns, use_prefilter=False)
+
+    assert [
+        (0, 1, 0),
+        (1, 2, 2),
+        (10, 12, 4),
+    ] == pma.find(haystack)
+
+
 def test_serialization() -> None:
     haystack = 'this is a テスト'
     patterns = ['t', 'hi', 'h', 'this', 'テス']
